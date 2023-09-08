@@ -1,13 +1,13 @@
-
+import p5 from "p5";
 class Paddle {
     x: number;
     y: number;
     w = 10;
-    p5: any;
+    p5: p5;
     h = 50;
     y_change = 0;
 
-    constructor(left: number, p5: any) {
+    constructor(left: number, p5: p5) {
         if (left)
             this.x = this.w;
         else
@@ -15,12 +15,12 @@ class Paddle {
         this.p5 = p5;
         this.y = p5.height / 2;
     }
-    update = () => {
-        this.y += this.y_change;
-        this.y = this.p5.constrain(this.y, this.h / 2, this.p5.height - this.h / 2)
-    }
-    move = (steps: number) =>
-        this.y_change = steps;
+    // update = () => {
+    //     this.y += this.y_change;
+    //     this.y = this.p5.constrain(this.y, this.h / 2, this.p5.height - this.h / 2)
+    // }
+    // move = (steps: number) =>
+    //     this.y_change = steps;
 
     show = () => {
         // this.p5.background(255);

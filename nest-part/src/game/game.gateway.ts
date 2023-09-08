@@ -13,9 +13,11 @@ import { Server } from 'socket.io';
 export class GameGateway implements OnModuleInit {
   @WebSocketServer()
   server: Server;
-  @SubscribeMessage('message')
-  handleMessage(@MessageBody() body: any) {
-    console.log(body);
+  @SubscribeMessage('join a game')
+  gamesetup(@MessageBody() body: number) {
+   // if last room is full
+    // setup game class 
+    // else join the game class and get your paddle
   }
   onModuleInit() {
     this.server.on('connection', (socket) => {
