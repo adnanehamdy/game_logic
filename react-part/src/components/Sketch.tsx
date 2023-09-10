@@ -16,7 +16,7 @@ const Sketch = () => {
       let metadata : metaData = 
       { windowWidth : p5.windowWidth, windowHeight : p5.windowHeight, 
         width : p5.width, height : p5.height};
-      socket.emit('join a game',{metadata} ,(data: any) =>
+      socket.emit('join a game',{metadata} ,(data: string) =>
       {
         console.log(data);
       });

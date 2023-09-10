@@ -23,7 +23,6 @@ export class GameGateway  {
   {}
   @SubscribeMessage('join a game')
   newPlayerJoined(@MessageBody() Data: metaData, @ConnectedSocket() socket: Socket) {
-  console.log(typeof Data);
   const metaData = plainToClass(metaDataDTO, Data.metadata);
     if (this.gameService.isGameOpen())
     {

@@ -36,9 +36,8 @@ export class gameService {
     }
 
     joinGame(metaData: metaDataDTO, @ConnectedSocket() socket: Socket) {
-        let playerInstance = new playerClass(metaData.width,
+        let playerInstance = new playerClass(metaData.width - 10,
             metaData.height);
-        console.log(playerInstance.paddle.x);
         playerInstance.socketId = socket.id;
         this.dashBoard.games[this.dashBoard.
             games.length - 1].players.push(playerInstance);
