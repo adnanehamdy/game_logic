@@ -4,9 +4,8 @@ import { gameClass } from "./gameClass"
 
 export class dashBoard
 {
-    games: gameClass[];
+    games: gameClass[] = [];
     // gameId: number
-    total: number;
-    players: number;
+    playersNumber: number;
 
 }
