@@ -5,7 +5,7 @@ import ball from "./SketchClasses/ball";
 import Paddle from "./SketchClasses/Paddle"
 import { SocketContext } from "../contexts/SocketContext";
 
-import { metaGameData } from "./SketchInterfaces/metaGameData";
+import { metaData } from "./SketchInterfaces/metaData";
 
 const Sketch = () => {
   const socket = useContext(SocketContext);
@@ -13,7 +13,7 @@ const Sketch = () => {
     // let ball: ball;
     // let paddle: Paddle;
     p5.setup = () => {
-      let metadata : metaGameData = 
+      let metadata : metaData = 
       { windowWidth : p5.windowWidth, windowHeight : p5.windowHeight, 
         width : p5.width, height : p5.height};
       socket.emit('join a game',{metadata} ,(data: any) =>

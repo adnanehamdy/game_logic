@@ -7,11 +7,8 @@ export class paddleClass {
     h = 50;
     y_change = 0;
 
-    constructor(width, height) {
-        // if (left)
-            // this.x = this.w;
-        // else
-            this.x = width - this.w;
+    constructor(width: number, height: number) {
+        this.x = width;
         this.y = height / 2;
     }
     update = () => {

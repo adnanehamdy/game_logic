@@ -1,7 +1,9 @@
 import { OnModuleInit } from '@nestjs/common';
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { Server } from 'socket.io';
-
+import { Server , Socket} from 'socket.io';
+import { gameService  } from './game.service';
+import { UUID, randomUUID } from 'crypto';
+import { metaDataDTO } from 'src/DTOs/metaDataDto';
 
 @WebSocketGateway(
   {
@@ -10,19 +12,25 @@ import { Server } from 'socket.io';
     },
   }
 )
-export class GameGateway implements OnModuleInit {
+export class GameGateway  {
   @WebSocketServer()
-  server: Server;
+  io: Server;
+
+  constructor(private readonly gameService: gameService)
+  {}
   @SubscribeMessage('join a game')
-  gamesetup(@MessageBody() body: number) {
-   // if last room is full
-    // setup game class 
-    // else join the game class and get your paddle
+  newPlayerJoined(@MessageBody() metaData: metaDataDTO, socket: Socket) {
+    if (this.gameService.isGameOpen())
+    {
+      this.gameService.joinGame(socket.id);
+      return 'connected to a game';
+    }
+    this.gameService.createGame(metaData, socket);
+    return 'new game created';
   }
+
   onModuleInit() {
-    this.server.on('connection', (socket) => {
-      console.log(socket.id);
-      console.log('connectd');
+    this.io.on('connection', (socket) => {
     });
   }
 }

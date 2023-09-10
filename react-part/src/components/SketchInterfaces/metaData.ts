@@ -1,4 +1,4 @@
-export interface metaGameData
+export interface metaData
 {
     windowWidth: number;
     windowHeight: number;
