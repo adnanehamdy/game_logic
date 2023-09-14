@@ -1,4 +1,4 @@
-import { dashBoard } from 'src/Classes/dashboard';
+import { dashBoard } from 'src/Classes/dashBoard';
 import { Injectable } from '@nestjs/common';
 import { metaDataDTO } from 'src/DTOs/metaDataDto';
 import { Socket } from 'socket.io';
@@ -7,22 +7,36 @@ import { gameClass } from 'src/Classes/gameClass';
 import { MetadataScanner } from '@nestjs/core';
 import { randomUUID } from 'crypto';
 import { ConnectedSocket } from '@nestjs/websockets';
+import { match } from 'assert';
+import { coordonationDTO } from 'src/DTOs/coordonationDTO';
 @Injectable()
 export class gameService {
     private dashBoard: dashBoard;
 
-    constructor() { this.dashBoard = new dashBoard();
-    this.dashBoard.playersNumber = 0; }
+    constructor() {
+        this.dashBoard = new dashBoard();
+        this.dashBoard.playersNumber = 0;
+    }
 
     isGameOpen() {
-        console.log(this.dashBoard.playersNumber);
         return (this.dashBoard.playersNumber % 2);
+    }
+    matchPlayerFromSocketId(socket: Socket): number[] {
+        let game_and_player: number[] = [];
+        game_and_player.push(this.dashBoard.allPlayersIDs.indexOf(socket.id));
+        // console.log("player found in " + game_and_player[0]);
+        game_and_player.push(0);
+        if (game_and_player[0] % 2) {
+            game_and_player[0] -= 1;
+            game_and_player[1] = 1;
+        }
+        game_and_player[0] /= 2;
+        return (game_and_player);
     }
     createGame(metaData: metaDataDTO, @ConnectedSocket() socket: Socket) {
         let gameInstance = new gameClass();
         let playerInstance = new playerClass(metaData.width,
             metaData.height);
-        console.log(playerInstance.paddle.x);
         gameInstance.players.push(playerInstance);
         gameInstance.players[0].socketId = socket.id;
         gameInstance.gameType = 'default';
@@ -32,14 +46,43 @@ export class gameService {
         socket.join(gameInstance.gameId);
         this.dashBoard.games.push(gameInstance);
         this.dashBoard.playersNumber++;
-        console.log('createGame');
+        this.dashBoard.allPlayersIDs.push(socket.id);
+        console.log('game created');
     }
 
-    joinGame(metaData: metaDataDTO, @ConnectedSocket() socket: Socket) {
+    joinGame(metaData: metaDataDTO, socket: Socket) {
         let playerInstance = new playerClass(metaData.width - 10,
             metaData.height);
         playerInstance.socketId = socket.id;
         this.dashBoard.games[this.dashBoard.
             games.length - 1].players.push(playerInstance);
+        this.dashBoard.playersNumber++;
+        console.log("player " + this.dashBoard.playersNumber +
+            "joined the game" + (this.dashBoard.games.length - 1));
+        this.dashBoard.allPlayersIDs.push(socket.id);
+    }
+    playerMovePaddle(newPostion: number, socket: Socket) {
+        let game_and_player = this.matchPlayerFromSocketId(socket);
+
+        console.log("game related to player" + game_and_player[0]);
+        const foundsocket = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].socketId;
+        this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.move(newPostion);
+        console.log("found socket" + foundsocket);
+    }
+
+    drawPaddle(socket: Socket) {
+        let game_and_player = this.matchPlayerFromSocketId(socket);
+        let coordonation = new coordonationDTO;
+        coordonation.x = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.x;
+        coordonation.y = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.y;
+        coordonation.w = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.w;
+        coordonation.h = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.h;
+        return (coordonation);
+
+    }
+    updatePaddlePosition(socket: Socket) {
+        let game_and_player = this.matchPlayerFromSocketId(socket);
+        this.dashBoard.games[game_and_player[0]].
+            players[game_and_player[1]].paddle.update();
     }
 }

@@ -6,6 +6,7 @@ export class dashBoard
 {
     games: gameClass[] = [];
     // gameId: number
+    allPlayersIDs : string[] = [];
     playersNumber: number;
 
 }

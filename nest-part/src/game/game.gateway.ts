@@ -7,6 +7,7 @@ import { metaDataDTO } from 'src/DTOs/metaDataDto';
 import { MetadataScanner } from '@nestjs/core';
 import { plainToClass } from 'class-transformer';
 import {metaData } from '../interfaces/metaData';
+import { subscribe } from 'diagnostics_channel';
 
 @WebSocketGateway(
   {
@@ -37,5 +38,21 @@ export class GameGateway  {
   onModuleInit() {
     this.io.on('connection', (socket) => {
     });
+  }
+  @SubscribeMessage('playerMovePaddle')
+  playerMovePaddle(@MessageBody() newPosition :number, @ConnectedSocket() socket: Socket)
+  {
+    console.log("socket.id before search =" + socket.id);
+    this.gameService.playerMovePaddle(newPosition, socket);
+  }
+  @SubscribeMessage("draw paddle")
+  drawPaddle(@ConnectedSocket() socket: Socket)
+  {
+    return (this.gameService.drawPaddle(socket));
+  }
+  @SubscribeMessage("updatePaddlePosition")
+  updatePaddlePosition(@ConnectedSocket() socket: Socket)
+  {
+    this.gameService.updatePaddlePosition(socket);
   }
 }
