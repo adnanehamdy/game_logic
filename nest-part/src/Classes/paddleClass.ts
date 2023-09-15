@@ -3,21 +3,23 @@ export class paddleClass {
     x: number;
     y: number;
     w = 10;
-    h = 50;
+    h = 80;
     y_change = 0;
     height: number;
 
-    constructor(width: number, height: number) {
-        this.x = width;
+    constructor(paddle_x: number, height: number) {
+        this.x = paddle_x;
         this.y = height / 2;
-        this.height = height;
+        this.height = 490;
     }
     update = () => {
         this.y += this.y_change;
+        // console.log(this.height);
         if (this.y < this.h /2)
             this.y = this.h/2;
-        else if ((this.height - this.h /2) < this.y)
-            this.y = this.height - this.h /2;
+        else if ((this.height - (this.h / 2)) < this.y)
+            this.y = this.height - (this.h / 2);
+        // console.log("y = " + this.y)
         // this.y = this.p5.constrain(this.y, this.h / 2, this.p5.height - this.h / 2)
         // this.y_change = 0;
     }

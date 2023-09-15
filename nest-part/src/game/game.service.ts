@@ -1,6 +1,6 @@
 import { dashBoard } from 'src/Classes/dashBoard';
 import { Injectable } from '@nestjs/common';
-import { metaDataDTO } from 'src/DTOs/metaDataDto';
+import { metaDataDTO } from 'src/DTOs/metaData.DTO';
 import { Socket } from 'socket.io';
 import { playerClass } from 'src/Classes/playerClass';
 import { gameClass } from 'src/Classes/gameClass';
@@ -8,7 +8,7 @@ import { MetadataScanner } from '@nestjs/core';
 import { randomUUID } from 'crypto';
 import { ConnectedSocket } from '@nestjs/websockets';
 import { match } from 'assert';
-import { coordonationDTO } from 'src/DTOs/coordonationDTO';
+import { coordonationDTO } from 'src/DTOs/coordonation.DTO';
 @Injectable()
 export class gameService {
     private dashBoard: dashBoard;
@@ -35,7 +35,7 @@ export class gameService {
     }
     createGame(metaData: metaDataDTO, @ConnectedSocket() socket: Socket) {
         let gameInstance = new gameClass();
-        let playerInstance = new playerClass(metaData.width,
+        let playerInstance = new playerClass(0 + 10,
             metaData.height);
         gameInstance.players.push(playerInstance);
         gameInstance.players[0].socketId = socket.id;
@@ -51,18 +51,18 @@ export class gameService {
     }
 
     joinGame(metaData: metaDataDTO, socket: Socket) {
-        let playerInstance = new playerClass(metaData.width - 10,
+        let playerInstance = new playerClass(metaData.windowWidth - 10,
             metaData.height);
         playerInstance.socketId = socket.id;
         this.dashBoard.games[this.dashBoard.
             games.length - 1].players.push(playerInstance);
         this.dashBoard.playersNumber++;
-        console.log("player " + this.dashBoard.playersNumber +
-            "joined the game" + (this.dashBoard.games.length - 1));
+        // console.log("player " + this.dashBoard.playersNumber +
+        //     "joined the game" + (this.dashBoard.games.length - 1));
         this.dashBoard.allPlayersIDs.push(socket.id);
     }
     playerMovePaddle(newPostion: number, socket: Socket) {
-        let game_and_player = this.matchPlayerFromSocketId(socket);
+        let game_and_player = this.matchPlayerFromSocketId(socket)
 
         console.log("game related to player" + game_and_player[0]);
         const foundsocket = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].socketId;
@@ -73,10 +73,12 @@ export class gameService {
     drawPaddle(socket: Socket) {
         let game_and_player = this.matchPlayerFromSocketId(socket);
         let coordonation = new coordonationDTO;
+        console.log(game_and_player);
         coordonation.x = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.x;
         coordonation.y = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.y;
         coordonation.w = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.w;
         coordonation.h = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.h;
+        console.log(coordonation);
         return (coordonation);
 
     }
@@ -84,5 +86,11 @@ export class gameService {
         let game_and_player = this.matchPlayerFromSocketId(socket);
         this.dashBoard.games[game_and_player[0]].
             players[game_and_player[1]].paddle.update();
+    }
+    stopPaddleMove(socket: Socket)
+    {
+        let game_and_player = this.matchPlayerFromSocketId(socket);
+        this.dashBoard.games[game_and_player[0]].
+        players[game_and_player[1]].paddle.y_change = 0;
     }
 }

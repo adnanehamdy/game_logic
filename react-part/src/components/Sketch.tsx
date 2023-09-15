@@ -16,7 +16,7 @@ const Sketch = () => {
       // i should map the backend values
       // into the front values and not send the data from the react
       let metadata : metaData = 
-      { windowWidth : p5.windowWidth, windowHeight : p5.windowHeight, 
+      { windowWidth : p5.windowWidth / 2, windowHeight : p5.windowHeight / 2, 
         width : p5.width, height : p5.height};
         console.log(metadata);
       socket.emit('join a game',{metadata} ,(data: string) =>
@@ -29,16 +29,16 @@ const Sketch = () => {
     };
     
     p5.draw = () => {
-      p5.background(200);
+      p5.background(0);
       socket.emit("draw paddle", (coordonation: coordonation)=>
       {
         paddle.x = coordonation.x;
         paddle.y = coordonation.y;
         paddle.w = coordonation.w;
         paddle.h = coordonation.h;
-          console.log("draw paddle");
-      })
-      paddle.show();
+          console.log(coordonation);
+        })
+      paddle.show(paddle.x, paddle.y, paddle.w, paddle.h);
       socket.emit("updatePaddlePosition");
       // left.show();
       // right.show();
@@ -49,6 +49,7 @@ const Sketch = () => {
       // ball.edges();
     };
     p5.keyReleased = () => {
+      socket.emit('stopPaddleMove');
       // ball.Show();
       // left.move(0);
       // right.move(0);

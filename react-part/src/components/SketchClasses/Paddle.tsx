@@ -17,10 +17,10 @@ class Paddle {
         this.w = 0;
         this.h = 0;
     }
-    show = () => {
+    show = (x: number, y: number, w: number, h: number) => {
     this.p5.rectMode(this.p5.CENTER);
-    this.p5.rect( this.x,
-        this.y, this.w, this.h);
+    console.log("draw rect");
+    this.p5.rect(x, y, w, h);
     // const socket = useContext(SocketContext);
     // socket.emit('draw paddles', );
         // this.p5.background(255);
