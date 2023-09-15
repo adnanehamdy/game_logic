@@ -1,8 +1,8 @@
 // import React from 'react';
 import { useContext, useEffect } from "react";
 import p5 from "p5";
-import ball from "./SketchClasses/ball";
-import Paddle from "./SketchClasses/Paddle"
+// import puck from "./SketchClasses/puck";
+import Paddles from "./SketchClasses/Paddle"
 import { SocketContext } from "../contexts/SocketContext";
 import { coordonation } from "./SketchInterfaces/coordonation";
 import { metaData } from "./SketchInterfaces/metaData";
@@ -10,8 +10,8 @@ import { metaData } from "./SketchInterfaces/metaData";
 const Sketch = () => {
   const socket = useContext(SocketContext);
   const p = (p5: p5) => {  
-    // let ball: ball;
-    let paddle: Paddle;
+    let ball_coordonation: number[] = [];
+    let paddles: Paddles;
     p5.setup = () => {
       // i should map the backend values
       // into the front values and not send the data from the react
@@ -24,27 +24,31 @@ const Sketch = () => {
         console.log(data);
       });
       p5.createCanvas(p5.windowWidth / 2, p5.windowHeight / 2);
-      paddle = new Paddle(p5);
-      // ball = new ball(p5);
+      paddles = new Paddles(p5);
     };
     
     p5.draw = () => {
       p5.background(0);
-      socket.emit("draw paddle", (coordonation: coordonation)=>
+      socket.emit("drawPaddles", (coordonation: coordonation)=>
       {
-        paddle.x = coordonation.x;
-        paddle.y = coordonation.y;
-        paddle.w = coordonation.w;
-        paddle.h = coordonation.h;
-        paddle.x_1 = coordonation.x_1;
-        paddle.y_1 = coordonation.y_1;
-        paddle.w_1 = coordonation.w_1;
-        paddle.h_1 = coordonation.h_1;
-          console.log(coordonation);
+        paddles.x = coordonation.x;
+        paddles.y = coordonation.y;
+        paddles.w = coordonation.w;
+        paddles.h = coordonation.h;
+        paddles.x_1 = coordonation.x_1;
+        paddles.y_1 = coordonation.y_1;
+        paddles.w_1 = coordonation.w_1;
+        paddles.h_1 = coordonation.h_1;
         })
-      paddle.show(paddle.x, paddle.y, paddle.w, paddle.h);
-      paddle.show(paddle.x_1, paddle.y_1, paddle.w_1, paddle.h_1);
-      socket.emit("updatePaddlePosition");
+        paddles.show(paddles.x, paddles.y, paddles.w, paddles.h);
+        paddles.show(paddles.x_1, paddles.y_1, paddles.w_1, paddles.h_1);
+        socket.emit('getballposition', (coordonation: number[])=>
+        {
+          ball_coordonation[0] = coordonation[0];
+          ball_coordonation[1] = coordonation[1];
+        });
+        p5.ellipse(ball_coordonation[0], ball_coordonation[1], 24, 24);
+        socket.emit("updatePaddlePosition");
       // left.show();
       // right.show();
       // left.update();

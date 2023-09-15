@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { metaDataDTO } from 'src/DTOs/metaData.DTO';
 import { Socket } from 'socket.io';
 import { playerClass } from 'src/Classes/playerClass';
+import { ballClass } from 'src/Classes/ballClass';
 import { gameClass } from 'src/Classes/gameClass';
 import { MetadataScanner } from '@nestjs/core';
 import { randomUUID } from 'crypto';
@@ -37,8 +38,10 @@ export class gameService {
         let gameInstance = new gameClass();
         let playerInstance = new playerClass(0 + 10,
             metaData.height);
+        let ballInstance = new ballClass(metaData.windowHeight, metaData.windowWidth);
         gameInstance.players.push(playerInstance);
         gameInstance.players[0].socketId = socket.id;
+        gameInstance.ball = ballInstance;
         gameInstance.gameType = 'default';
         gameInstance.gameStatus = 'pending'
         gameInstance.score.push(0);
@@ -73,11 +76,11 @@ export class gameService {
         console.log("found socket" + foundsocket);
     }
 
-    drawPaddle(socket: Socket) {
+    drawPaddles(socket: Socket) {
         let game_and_player = this.matchPlayerFromSocketId(socket);
         let coordonation = new coordonationDTO;
         if (this.dashBoard.games[game_and_player[0]].gameStatus === 'playing') {
-            console.log(game_and_player);
+            // console.log(game_and_player);
             coordonation.x = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.x;
             coordonation.y = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.y;
             coordonation.w = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.w;
@@ -104,5 +107,16 @@ export class gameService {
         let game_and_player = this.matchPlayerFromSocketId(socket);
         this.dashBoard.games[game_and_player[0]].
             players[game_and_player[1]].paddle.y_change = 0;
+    }
+    getballposition(socket: Socket)
+    {
+        let ball_coordonation : number[] = [];
+        let game_and_player = this.matchPlayerFromSocketId(socket);
+        if (this.dashBoard.games[game_and_player[0]].gameStatus === 'playing')
+        {
+            ball_coordonation[0] = this.dashBoard.games[game_and_player[0]].ball.x;
+            ball_coordonation[1] = this.dashBoard.games[game_and_player[0]].ball.y;
+        }
+        return (ball_coordonation);
     }
 }

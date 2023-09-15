@@ -1,8 +1,8 @@
 import p5 from "p5";
-import { useContext } from "react";
-import { SocketContext } from "../../contexts/SocketContext";
-import { coordonation } from "../SketchInterfaces/coordonation";
-class Paddle {
+// import { useContext } from "react";
+// import { SocketContext } from "../../contexts/SocketContext";
+// import { coordonation } from "../SketchInterfaces/coordonation";
+class Paddles {
     // const socket = useContext(SocketContext);
     p5: p5;
     x : number;
@@ -35,4 +35,4 @@ class Paddle {
     }
 }
 
-export default Paddle;
+export default Paddles;

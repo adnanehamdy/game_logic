@@ -6,7 +6,7 @@ export class ballClass {
     width: number;
     xspeed = 2;
     yspeed = 0.5;
-    constructor(height, width) {
+    constructor(height: number, width: number) {
         this.height = height;
         this.width = width;
         this.y = this.height /2;

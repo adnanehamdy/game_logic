@@ -54,10 +54,10 @@ export class GameGateway implements OnGatewayDisconnect {
     console.log("socket.id before search =" + socket.id);
     this.gameService.playerMovePaddle(newPosition, socket);
   }
-  @SubscribeMessage("draw paddle")
-  drawPaddle(@ConnectedSocket() socket: Socket)
+  @SubscribeMessage("drawPaddles")
+  draw(@ConnectedSocket() socket: Socket)
   {
-    return (this.gameService.drawPaddle(socket));
+    return (this.gameService.drawPaddles(socket));
   }
   @SubscribeMessage("updatePaddlePosition")
   updatePaddlePosition(@ConnectedSocket() socket: Socket)
@@ -68,5 +68,10 @@ export class GameGateway implements OnGatewayDisconnect {
   stopPaddleMove(@ConnectedSocket() socket: Socket)
   {
     this.gameService.stopPaddleMove(socket);
+  }
+  @SubscribeMessage("getballposition")
+  getballposition(@ConnectedSocket() socket: Socket)
+  {
+    return (this.gameService.getballposition(socket));
   }
 }
