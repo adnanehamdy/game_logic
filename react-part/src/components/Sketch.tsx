@@ -36,9 +36,14 @@ const Sketch = () => {
         paddle.y = coordonation.y;
         paddle.w = coordonation.w;
         paddle.h = coordonation.h;
+        paddle.x_1 = coordonation.x_1;
+        paddle.y_1 = coordonation.y_1;
+        paddle.w_1 = coordonation.w_1;
+        paddle.h_1 = coordonation.h_1;
           console.log(coordonation);
         })
       paddle.show(paddle.x, paddle.y, paddle.w, paddle.h);
+      paddle.show(paddle.x_1, paddle.y_1, paddle.w_1, paddle.h_1);
       socket.emit("updatePaddlePosition");
       // left.show();
       // right.show();

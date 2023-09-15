@@ -40,6 +40,7 @@ export class gameService {
         gameInstance.players.push(playerInstance);
         gameInstance.players[0].socketId = socket.id;
         gameInstance.gameType = 'default';
+        gameInstance.gameStatus = 'pending'
         gameInstance.score.push(0);
         gameInstance.score.push(1);
         gameInstance.gameId = randomUUID();
@@ -57,6 +58,8 @@ export class gameService {
         this.dashBoard.games[this.dashBoard.
             games.length - 1].players.push(playerInstance);
         this.dashBoard.playersNumber++;
+        this.dashBoard.games[this.dashBoard.
+            games.length - 1].gameStatus = 'playing';
         // console.log("player " + this.dashBoard.playersNumber +
         //     "joined the game" + (this.dashBoard.games.length - 1));
         this.dashBoard.allPlayersIDs.push(socket.id);
@@ -73,12 +76,22 @@ export class gameService {
     drawPaddle(socket: Socket) {
         let game_and_player = this.matchPlayerFromSocketId(socket);
         let coordonation = new coordonationDTO;
-        console.log(game_and_player);
-        coordonation.x = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.x;
-        coordonation.y = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.y;
-        coordonation.w = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.w;
-        coordonation.h = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.h;
-        console.log(coordonation);
+        if (this.dashBoard.games[game_and_player[0]].gameStatus === 'playing') {
+            console.log(game_and_player);
+            coordonation.x = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.x;
+            coordonation.y = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.y;
+            coordonation.w = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.w;
+            coordonation.h = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.h;
+            if (game_and_player[1] === 1)
+                game_and_player[1] = 0;
+            else
+                game_and_player[1] = 1;
+            coordonation.x_1 = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.x;
+            coordonation.y_1 = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.y;
+            coordonation.w_1 = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.w;
+            coordonation.h_1 = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.h;
+        }
+        // console.log(coordonation);
         return (coordonation);
 
     }
@@ -87,10 +100,9 @@ export class gameService {
         this.dashBoard.games[game_and_player[0]].
             players[game_and_player[1]].paddle.update();
     }
-    stopPaddleMove(socket: Socket)
-    {
+    stopPaddleMove(socket: Socket) {
         let game_and_player = this.matchPlayerFromSocketId(socket);
         this.dashBoard.games[game_and_player[0]].
-        players[game_and_player[1]].paddle.y_change = 0;
+            players[game_and_player[1]].paddle.y_change = 0;
     }
 }

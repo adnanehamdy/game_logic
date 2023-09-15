@@ -10,12 +10,12 @@ export class coordonationDTO
     w: number;
     @IsNumber()
     h: number;
-    // @IsNumber()
-    // x_1: number;
-    // @IsNumber()
-    // y_1: number;
-    // @IsNumber()
-    // w_1: number;
-    // @IsNumber()
-    // h_1: number;
+    @IsNumber()
+    x_1: number;
+    @IsNumber()
+    y_1: number;
+    @IsNumber()
+    w_1: number;
+    @IsNumber()
+    h_1: number;
 }
