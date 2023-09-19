@@ -10,6 +10,7 @@ import { randomUUID } from 'crypto';
 import { ConnectedSocket } from '@nestjs/websockets';
 import { match } from 'assert';
 import { coordonationDTO } from 'src/DTOs/coordonation.DTO';
+import { paddleClass } from 'src/Classes/paddleClass';
 @Injectable()
 export class gameService {
     private dashBoard: dashBoard;
@@ -114,6 +115,14 @@ export class gameService {
         let game_and_player = this.matchPlayerFromSocketId(socket);
         if (this.dashBoard.games[game_and_player[0]].gameStatus === 'playing')
         {
+            let leftPaddle = this.dashBoard.games[game_and_player[0]].players[0].paddle;
+            let rightPaddle = this.dashBoard.games[game_and_player[0]].players[1].paddle;
+            this.dashBoard.games[game_and_player[0]].ball.update();
+            this.dashBoard.games[game_and_player[0]].ball.checkRightPaddle(rightPaddle.x,
+                rightPaddle.y, rightPaddle.h);
+            this.dashBoard.games[game_and_player[0]].ball.checkLeftPaddle(leftPaddle.x,
+                    leftPaddle.y, leftPaddle.h); 
+            this.dashBoard.games[game_and_player[0]].ball.edges(490, 1062);
             ball_coordonation[0] = this.dashBoard.games[game_and_player[0]].ball.x;
             ball_coordonation[1] = this.dashBoard.games[game_and_player[0]].ball.y;
         }
