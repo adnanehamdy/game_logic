@@ -24,16 +24,16 @@ export class gameService {
         return (this.dashBoard.playersNumber % 2);
     }
     matchPlayerFromSocketId(socket: Socket): number[] {
-        let game_and_player: number[] = [];
-        game_and_player.push(this.dashBoard.allPlayersIDs.indexOf(socket.id));
-        // console.log("player found in " + game_and_player[0]);
-        game_and_player.push(0);
-        if (game_and_player[0] % 2) {
-            game_and_player[0] -= 1;
-            game_and_player[1] = 1;
+        let gp_index: number[] = [];
+        gp_index.push(this.dashBoard.allPlayersIDs.indexOf(socket.id));
+        // console.log("player found in " + gp_index[0]);
+        gp_index.push(0);
+        if (gp_index[0] % 2) {
+            gp_index[0] -= 1;
+            gp_index[1] = 1;
         }
-        game_and_player[0] /= 2;
-        return (game_and_player);
+        gp_index[0] /= 2;
+        return (gp_index);
     }
     createGame(metaData: metaDataDTO, @ConnectedSocket() socket: Socket) {
         let gameInstance = new gameClass();
@@ -45,8 +45,8 @@ export class gameService {
         gameInstance.ball = ballInstance;
         gameInstance.gameType = 'default';
         gameInstance.gameStatus = 'pending'
-        gameInstance.score.push(0);
-        gameInstance.score.push(1);
+        gameInstance.ball.score.push(0);
+        gameInstance.ball.score.push(0);
         gameInstance.gameId = randomUUID();
         socket.join(gameInstance.gameId);
         this.dashBoard.games.push(gameInstance);
@@ -69,63 +69,72 @@ export class gameService {
         this.dashBoard.allPlayersIDs.push(socket.id);
     }
     playerMovePaddle(newPostion: number, socket: Socket) {
-        let game_and_player = this.matchPlayerFromSocketId(socket)
+        let gp_index = this.matchPlayerFromSocketId(socket)
 
-        console.log("game related to player" + game_and_player[0]);
-        const foundsocket = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].socketId;
-        this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.move(newPostion);
+        console.log("game related to player" + gp_index[0]);
+        const foundsocket = this.dashBoard.games[gp_index[0]].players[gp_index[1]].socketId;
+        this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.move(newPostion);
         console.log("found socket" + foundsocket);
     }
 
     drawPaddles(socket: Socket) {
-        let game_and_player = this.matchPlayerFromSocketId(socket);
+        let gp_index = this.matchPlayerFromSocketId(socket);
         let coordonation = new coordonationDTO;
-        if (this.dashBoard.games[game_and_player[0]].gameStatus === 'playing') {
-            // console.log(game_and_player);
-            coordonation.x = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.x;
-            coordonation.y = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.y;
-            coordonation.w = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.w;
-            coordonation.h = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.h;
-            if (game_and_player[1] === 1)
-                game_and_player[1] = 0;
+        if (this.dashBoard.games[gp_index[0]].gameStatus === 'playing') {
+            // console.log(gp_index);
+            coordonation.x = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.x;
+            coordonation.y = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.y;
+            coordonation.w = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.w;
+            coordonation.h = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.h;
+            if (gp_index[1] === 1)
+                gp_index[1] = 0;
             else
-                game_and_player[1] = 1;
-            coordonation.x_1 = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.x;
-            coordonation.y_1 = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.y;
-            coordonation.w_1 = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.w;
-            coordonation.h_1 = this.dashBoard.games[game_and_player[0]].players[game_and_player[1]].paddle.h;
+                gp_index[1] = 1;
+            coordonation.x_1 = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.x;
+            coordonation.y_1 = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.y;
+            coordonation.w_1 = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.w;
+            coordonation.h_1 = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.h;
         }
         // console.log(coordonation);
         return (coordonation);
 
     }
     updatePaddlePosition(socket: Socket) {
-        let game_and_player = this.matchPlayerFromSocketId(socket);
-        this.dashBoard.games[game_and_player[0]].
-            players[game_and_player[1]].paddle.update();
+        let gp_index = this.matchPlayerFromSocketId(socket);
+        this.dashBoard.games[gp_index[0]].
+            players[gp_index[1]].paddle.update();
     }
     stopPaddleMove(socket: Socket) {
-        let game_and_player = this.matchPlayerFromSocketId(socket);
-        this.dashBoard.games[game_and_player[0]].
-            players[game_and_player[1]].paddle.y_change = 0;
+        let gp_index = this.matchPlayerFromSocketId(socket);
+        this.dashBoard.games[gp_index[0]].
+            players[gp_index[1]].paddle.y_change = 0;
     }
     getballposition(socket: Socket)
     {
         let ball_coordonation : number[] = [];
-        let game_and_player = this.matchPlayerFromSocketId(socket);
-        if (this.dashBoard.games[game_and_player[0]].gameStatus === 'playing')
+        let gp_index = this.matchPlayerFromSocketId(socket);
+        if (this.dashBoard.games[gp_index[0]].gameStatus === 'playing')
         {
-            let leftPaddle = this.dashBoard.games[game_and_player[0]].players[0].paddle;
-            let rightPaddle = this.dashBoard.games[game_and_player[0]].players[1].paddle;
-            this.dashBoard.games[game_and_player[0]].ball.update();
-            this.dashBoard.games[game_and_player[0]].ball.checkRightPaddle(rightPaddle.x,
+            let leftPaddle = this.dashBoard.games[gp_index[0]].players[0].paddle;
+            let rightPaddle = this.dashBoard.games[gp_index[0]].players[1].paddle;
+            this.dashBoard.games[gp_index[0]].ball.update();
+            this.dashBoard.games[gp_index[0]].ball.checkRightPaddle(rightPaddle.x,
                 rightPaddle.y, rightPaddle.h);
-            this.dashBoard.games[game_and_player[0]].ball.checkLeftPaddle(leftPaddle.x,
+            this.dashBoard.games[gp_index[0]].ball.checkLeftPaddle(leftPaddle.x,
                     leftPaddle.y, leftPaddle.h); 
-            this.dashBoard.games[game_and_player[0]].ball.edges(490, 1062);
-            ball_coordonation[0] = this.dashBoard.games[game_and_player[0]].ball.x;
-            ball_coordonation[1] = this.dashBoard.games[game_and_player[0]].ball.y;
+            this.dashBoard.games[gp_index[0]].ball.edges(490, 1062);
+            ball_coordonation[0] = this.dashBoard.games[gp_index[0]].ball.x;
+            ball_coordonation[1] = this.dashBoard.games[gp_index[0]].ball.y;
         }
         return (ball_coordonation);
+    }
+    getScore(socket: Socket)
+    {
+        let players_score : number[] = [];
+        let game_index = this.matchPlayerFromSocketId(socket);
+        players_score.push(this.dashBoard.games[game_index[0]].ball.score[0]);
+        players_score.push(this.dashBoard.games[game_index[0]].ball.score[1]);
+        console.log(players_score.push(this.dashBoard.games[game_index[0]].ball.score[0]));
+        return (players_score);
     }
 }

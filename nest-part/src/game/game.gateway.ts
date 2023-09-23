@@ -74,4 +74,10 @@ export class GameGateway implements OnGatewayDisconnect {
   {
     return (this.gameService.getballposition(socket));
   }
+  
+  @SubscribeMessage("getScore")
+  getScore(@ConnectedSocket() socket: Socket)
+  {
+    return (this.gameService.getScore(socket));
+  }
 }

@@ -6,7 +6,7 @@ export class gameClass{
     gameStatus: string;
     ball : ballClass;
     players : playerClass[] = [];
-    score: number[] = [];
+    // score: number[] = [];
     gameType: string;
 
     constructor()

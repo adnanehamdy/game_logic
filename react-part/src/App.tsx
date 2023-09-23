@@ -5,7 +5,8 @@ import { socket, SocketProvider } from './contexts/SocketContext';
 
 function App() {
   return (<div className='App'>
-    <SocketProvider value={socket}>
+    <SocketProvider value={socket}> 
+    
       <Sketch />
     </SocketProvider>
   </div>);

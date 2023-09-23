@@ -12,11 +12,12 @@ const Sketch = () => {
   const p = (p5: p5) => {  
     let ball_coordonation: number[] = [];
     let paddles: Paddles;
-    p5.setup = () => {
+    let Score : number[] = [];
+    p5.setup = () => {  
       // i should map the backend values
       // into the front values and not send the data from the react
       let metadata : metaData = 
-      { windowWidth : p5.windowWidth / 2, windowHeight : p5.windowHeight / 2, 
+      { windowWidth : p5.windowWidth / 2, windowHeight : p5.windowHeight / 2,
         width : p5.width, height : p5.height};
         console.log(metadata);
       socket.emit('join a game',{metadata} ,(data: string) =>
@@ -49,6 +50,15 @@ const Sketch = () => {
         });
         p5.ellipse(ball_coordonation[0], ball_coordonation[1], 24, 24);
         socket.emit("updatePaddlePosition");
+        socket.emit("getScore", (score : number[])=>
+        {
+          Score[0] = score[0];
+          Score[1] = score[1];
+        })
+        p5.fill(255);
+        p5.textSize(32);
+        p5.text(Score[0], 32, 40, 40);
+        p5.text(Score[1], p5.windowWidth / 2 - 32, 40, 40);
       // left.show();
       // right.show();
       // left.update();
@@ -77,7 +87,7 @@ useEffect(() => {
   return p5Object.remove;
 }, []);
 
-  return <></>;
+  return <></>
 };
 
 export default Sketch;
