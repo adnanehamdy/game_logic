@@ -8,9 +8,9 @@ export class paddleClass {
     height: number;
 
     constructor(paddle_x: number, height: number) {
-        this.x = paddle_x;
+        this.x = paddle_x ;
         this.y = height / 2;
-        this.height = 490;
+        this.height = height;
     }
     update = () => {
         this.y += this.y_change;
@@ -19,6 +19,7 @@ export class paddleClass {
             this.y = this.h/2;
         else if ((this.height - (this.h / 2)) < this.y)
             this.y = this.height - (this.h / 2);
+        
         // console.log("y = " + this.y)
         // this.y = this.p5.constrain(this.y, this.h / 2, this.p5.height - this.h / 2)
         // this.y_change = 0;

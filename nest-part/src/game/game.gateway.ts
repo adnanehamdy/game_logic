@@ -2,7 +2,7 @@ import { OnModuleInit } from '@nestjs/common';
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server , Socket} from 'socket.io';
 import { gameService  } from './game.service';
-import { UUID, randomUUID } from 'crypto';
+import { randomUUID } from 'crypto';
 import { metaDataDTO } from 'src/DTOs/metaData.DTO';
 import { MetadataScanner } from '@nestjs/core';
 import { plainToClass } from 'class-transformer';

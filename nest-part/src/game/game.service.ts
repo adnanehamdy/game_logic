@@ -38,7 +38,7 @@ export class gameService {
     createGame(metaData: metaDataDTO, @ConnectedSocket() socket: Socket) {
         let gameInstance = new gameClass();
         let playerInstance = new playerClass(0 + 10,
-            metaData.height);
+            metaData.windowHeight);
         let ballInstance = new ballClass(metaData.windowHeight, metaData.windowWidth);
         gameInstance.players.push(playerInstance);
         gameInstance.players[0].socketId = socket.id;
@@ -57,7 +57,7 @@ export class gameService {
 
     joinGame(metaData: metaDataDTO, socket: Socket) {
         let playerInstance = new playerClass(metaData.windowWidth - 10,
-            metaData.height);
+            metaData.windowHeight);
         playerInstance.socketId = socket.id;
         this.dashBoard.games[this.dashBoard.
             games.length - 1].players.push(playerInstance);
@@ -134,7 +134,7 @@ export class gameService {
         let game_index = this.matchPlayerFromSocketId(socket);
         players_score.push(this.dashBoard.games[game_index[0]].ball.score[0]);
         players_score.push(this.dashBoard.games[game_index[0]].ball.score[1]);
-        console.log(players_score.push(this.dashBoard.games[game_index[0]].ball.score[0]));
+        // console.log(players_score.push(this.dashBoard.games[game_index[0]].ball.score[0]));
         return (players_score);
     }
 }
