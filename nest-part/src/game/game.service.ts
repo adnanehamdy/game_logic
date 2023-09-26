@@ -1,6 +1,6 @@
 import { dashBoard } from 'src/Classes/dashBoard';
 import { Injectable } from '@nestjs/common';
-import { metaDataDTO } from 'src/DTOs/metaData.DTO';
+// import { metaDataDTO } from 'src/DTOs/metaData.DTO';
 import { Socket } from 'socket.io';
 import { playerClass } from 'src/Classes/playerClass';
 import { ballClass } from 'src/Classes/ballClass';
@@ -14,7 +14,6 @@ import { paddleClass } from 'src/Classes/paddleClass';
 @Injectable()
 export class gameService {
     private dashBoard: dashBoard;
-
     constructor() {
         this.dashBoard = new dashBoard();
         this.dashBoard.playersNumber = 0;
@@ -35,7 +34,10 @@ export class gameService {
         gp_index[0] /= 2;
         return (gp_index);
     }
-    createGame(metaData: metaDataDTO, @ConnectedSocket() socket: Socket) {
+    createGame(@ConnectedSocket() socket: Socket) {
+        const metaData  = 
+        { windowWidth : 683, windowHeight  : 331,
+        width : 100, height : 100};
         let gameInstance = new gameClass();
         let playerInstance = new playerClass(0 + 10,
             metaData.windowHeight);
@@ -55,7 +57,10 @@ export class gameService {
         console.log('game created');
     }
 
-    joinGame(metaData: metaDataDTO, socket: Socket) {
+    joinGame(socket: Socket) {
+        const metaData  = 
+        { windowWidth : 683, windowHeight  : 331,
+        width : 100, height : 100};
         let playerInstance = new playerClass(metaData.windowWidth - 10,
             metaData.windowHeight);
         playerInstance.socketId = socket.id;

@@ -23,9 +23,10 @@ const GameCanvas = () => {
     p5.setup = () => {  
       let metadata : metaData = 
       { windowWidth : p5.windowWidth / 2, windowHeight : p5.windowHeight / 2,
-        width : p5.width, height : p5.height};
+      width : p5.width, height : p5.height};
+      console.log(metadata);
         console.log(metadata);
-      socket.emit('join a game',{metadata} ,(data: string) =>
+      socket.emit('join a game', (data: string) =>
       {
         console.log(data);
       });
@@ -46,6 +47,7 @@ const GameCanvas = () => {
         paddles.w_1 = coordonation.w_1;
         paddles.h_1 = coordonation.h_1;
         })
+        // p5.resizeCanvas(p5.windowWidth / 2, p5.windowHeight / 2);
         paddles.show(paddles.x, paddles.y, paddles.w, paddles.h);
         paddles.show(paddles.x_1, paddles.y_1, paddles.w_1, paddles.h_1);
         socket.emit('getballposition', (coordonation: number[])=>
@@ -76,7 +78,7 @@ const GameCanvas = () => {
         socket.emit('playerMovePaddle', 15);
     }
   }
-  return <ReactP5Wrapper sketch={sketch} socket={socket}/>;
+  return <ReactP5Wrapper sketch={sketch}/>;
   };
 
 

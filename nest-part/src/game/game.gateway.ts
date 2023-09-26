@@ -3,7 +3,7 @@ import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSo
 import { Server , Socket} from 'socket.io';
 import { gameService  } from './game.service';
 import { randomUUID } from 'crypto';
-import { metaDataDTO } from 'src/DTOs/metaData.DTO';
+// import { metaDataDTO } from 'src/DTOs/metaData.DTO';
 import { MetadataScanner } from '@nestjs/core';
 import { plainToClass } from 'class-transformer';
 import {metaData } from '../interfaces/metaData';
@@ -26,15 +26,15 @@ export class GameGateway implements OnGatewayDisconnect {
   {}
 
   @SubscribeMessage('join a game')
-  newPlayerJoined(@MessageBody() Data: metaData, @ConnectedSocket() socket: Socket) {
-  const metaData = plainToClass(metaDataDTO, Data.metadata);
+  newPlayerJoined(@ConnectedSocket() socket: Socket) {
+  // const metaData = plainToClass(metaDataDTO, Data.metadata);
     if (this.gameService.isGameOpen())
     {
-      this.gameService.joinGame(metaData, socket);
+      this.gameService.joinGame(socket);
       return 'connected to a game';
     }
 
-    this.gameService.createGame(metaData, socket);
+    this.gameService.createGame(socket);
     return 'new game created';
   }
 
