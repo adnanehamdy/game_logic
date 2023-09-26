@@ -1,21 +1,26 @@
 // import React from 'react';
-import { useContext, useEffect } from "react";
-import p5 from "p5";
+import { useContext } from "react";
 // import puck from "./SketchClasses/puck";
 import Paddles from "./SketchClasses/Paddle"
 import { SocketContext } from "../contexts/SocketContext";
 import { coordonation } from "./SketchInterfaces/coordonation";
 import { metaData } from "./SketchInterfaces/metaData";
+// import { P5CanvasInstance } from "react-p5-wrapper";
+import { Socket } from "socket.io-client";
+import { P5CanvasInstance, ReactP5Wrapper, Sketch, SketchProps } from "react-p5-wrapper";
+;
 
-const Sketch = () => {
+
+
+const GameCanvas = () => {
   const socket = useContext(SocketContext);
-  const p = (p5: p5) => {  
+  const sketch = (p5 : P5CanvasInstance) => {
     let ball_coordonation: number[] = [];
     let paddles: Paddles;
+    // let socket: Socket;
+  
     let Score : number[] = [];
     p5.setup = () => {  
-      // i should map the backend values
-      // into the front values and not send the data from the react
       let metadata : metaData = 
       { windowWidth : p5.windowWidth / 2, windowHeight : p5.windowHeight / 2,
         width : p5.width, height : p5.height};
@@ -59,19 +64,9 @@ const Sketch = () => {
         p5.textSize(32);
         p5.text(Score[0], 32, 40, 40);
         p5.text(Score[1], p5.windowWidth / 2 - 32, 40, 40);
-      // left.show();
-      // right.show();
-      // left.update();
-      // right.update();
-      // ball.update();
-      // ball.Show();
-      // ball.edges();
     };
     p5.keyReleased = () => {
       socket.emit('stopPaddleMove');
-      // ball.Show();
-      // left.move(0);
-      // right.move(0);
     }
     p5.keyPressed = () => {
       console.log('key_pressed');
@@ -79,15 +74,10 @@ const Sketch = () => {
         socket.emit('playerMovePaddle', -15);
       else if (p5.key == 's')
         socket.emit('playerMovePaddle', 15);
+    }
   }
-};
+  return <ReactP5Wrapper sketch={sketch} socket={socket}/>;
+  };
 
-useEffect(() => {
-  const p5Object = new p5(p);
-  return p5Object.remove;
-}, []);
 
-  return <></>
-};
-
-export default Sketch;
+export default GameCanvas;
