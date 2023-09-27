@@ -4,58 +4,64 @@ import { useContext } from "react";
 import Paddles from "./SketchClasses/Paddle"
 import { SocketContext } from "../contexts/SocketContext";
 import { coordonation } from "./SketchInterfaces/coordonation";
-import { metaData } from "./SketchInterfaces/metaData";
-// import { P5CanvasInstance } from "react-p5-wrapper";
-import { Socket } from "socket.io-client";
-import { P5CanvasInstance, ReactP5Wrapper, Sketch, SketchProps } from "react-p5-wrapper";
+// import { metaData } from "./SketchInterfaces/metaData";
+import { P5CanvasInstance, ReactP5Wrapper} from "react-p5-wrapper";
 ;
 
 
 
 const GameCanvas = () => {
   const socket = useContext(SocketContext);
+  let DidGameStart = false;
+  // let canvas;
+  let CanvasDiv;
+  socket.on('GameStarted', ()=> DidGameStart = true);
   const sketch = (p5 : P5CanvasInstance) => {
     let ball_coordonation: number[] = [];
     let paddles: Paddles;
-    // let socket: Socket;
-  
     let Score : number[] = [];
     p5.setup = () => {  
-      let metadata : metaData = 
-      { windowWidth : p5.windowWidth / 2, windowHeight : p5.windowHeight / 2,
-      width : p5.width, height : p5.height};
-      console.log(metadata);
-        console.log(metadata);
       socket.emit('join a game', (data: string) =>
       {
         console.log(data);
       });
+      // CanvasDiv = p5.createDiv();
+      // CanvasDiv.id('myDiv');
+       // Set the ID for styling
+      // CanvasDiv.position(p5.windowWidth / 2 - CanvasDiv.width / 2, p5.windowHeight / 2 - myDiv.height / 2);
       p5.createCanvas(p5.windowWidth / 2, p5.windowHeight / 2);
+      // CanvasDiv.parent('GameCanvas');
       paddles = new Paddles(p5);
     };
     
     p5.draw = () => {
+      if (!DidGameStart)
+        return ;
+      p5.resizeCanvas(p5.windowWidth / 2, p5.windowHeight / 2);
       p5.background(0);
       socket.emit("drawPaddles", (coordonation: coordonation)=>
       {
-        paddles.x = coordonation.x;
-        paddles.y = coordonation.y;
-        paddles.w = coordonation.w;
-        paddles.h = coordonation.h;
-        paddles.x_1 = coordonation.x_1;
-        paddles.y_1 = coordonation.y_1;
-        paddles.w_1 = coordonation.w_1;
-        paddles.h_1 = coordonation.h_1;
+        console.log("x = " + coordonation.x + " && " + p5.windowWidth / 2);
+        paddles.x = p5.map(coordonation.x, 0, 683, 0, (p5.windowWidth / 2));
+        console.log("X after = " + paddles.x);
+        paddles.y = p5.map(coordonation.y, 0, 331, 0, p5.windowHeight / 2);
+        paddles.w = p5.map(coordonation.w, 0, 683, 0, p5.windowWidth / 2);
+        paddles.h = p5.map(coordonation.h, 0, 331, 0, p5.windowHeight / 2);
+        paddles.x_1 = p5.map(coordonation.x_1, 0, 683, 0, p5.windowWidth / 2);
+        paddles.y_1 = p5.map(coordonation.y_1, 0, 331, 0, p5.windowHeight / 2);
+        paddles.w_1 = p5.map(coordonation.w_1, 0, 683, 0, p5.windowWidth / 2);
+        paddles.h_1 = p5.map(coordonation.h_1, 0, 331, 0, p5.windowHeight / 2);
         })
         // p5.resizeCanvas(p5.windowWidth / 2, p5.windowHeight / 2);
         paddles.show(paddles.x, paddles.y, paddles.w, paddles.h);
         paddles.show(paddles.x_1, paddles.y_1, paddles.w_1, paddles.h_1);
         socket.emit('getballposition', (coordonation: number[])=>
         {
-          ball_coordonation[0] = coordonation[0];
-          ball_coordonation[1] = coordonation[1];
+          ball_coordonation[0] = p5.map(coordonation[0], 0, 683, 0, p5.windowWidth / 2);
+          ball_coordonation[1] = p5.map(coordonation[1], 0, 331, 0, p5.windowHeight / 2);
+          ball_coordonation[2] = p5.map(24, 0, 683, 0, p5.windowWidth /2);
         });
-        p5.ellipse(ball_coordonation[0], ball_coordonation[1], 24, 24);
+        p5.ellipse(ball_coordonation[0], ball_coordonation[1], ball_coordonation[2], ball_coordonation[2]);
         socket.emit("updatePaddlePosition");
         socket.emit("getScore", (score : number[])=>
         {
@@ -78,8 +84,12 @@ const GameCanvas = () => {
         socket.emit('playerMovePaddle', 15);
     }
   }
-  return <ReactP5Wrapper sketch={sketch}/>;
-  };
-
+  return (
+  // <div className="flex items-center justify-center h-screen">
+  <div className="GameCanvas">
+    <ReactP5Wrapper sketch={sketch}/>
+    </div>
+  );
+  }
 
 export default GameCanvas;

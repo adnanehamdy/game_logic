@@ -11,6 +11,7 @@ import { ConnectedSocket } from '@nestjs/websockets';
 import { match } from 'assert';
 import { coordonationDTO } from 'src/DTOs/coordonation.DTO';
 import { paddleClass } from 'src/Classes/paddleClass';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 @Injectable()
 export class gameService {
     private dashBoard: dashBoard;
@@ -35,9 +36,11 @@ export class gameService {
         return (gp_index);
     }
     createGame(@ConnectedSocket() socket: Socket) {
-        const metaData  = 
-        { windowWidth : 683, windowHeight  : 331,
-        width : 100, height : 100};
+        const metaData =
+        {
+            windowWidth: 683, windowHeight: 331,
+            width: 100, height: 100
+        };
         let gameInstance = new gameClass();
         let playerInstance = new playerClass(0 + 10,
             metaData.windowHeight);
@@ -58,20 +61,22 @@ export class gameService {
     }
 
     joinGame(socket: Socket) {
-        const metaData  = 
-        { windowWidth : 683, windowHeight  : 331,
-        width : 100, height : 100};
+        const metaData =
+        {
+            windowWidth: 683, windowHeight: 331,
+            width: 100, height: 100
+        };
         let playerInstance = new playerClass(metaData.windowWidth - 10,
             metaData.windowHeight);
         playerInstance.socketId = socket.id;
         this.dashBoard.games[this.dashBoard.
             games.length - 1].players.push(playerInstance);
         this.dashBoard.playersNumber++;
+        socket.join(this.dashBoard.games[this.dashBoard.games.length - 1].gameId);
         this.dashBoard.games[this.dashBoard.
             games.length - 1].gameStatus = 'playing';
-        // console.log("player " + this.dashBoard.playersNumber +
-        //     "joined the game" + (this.dashBoard.games.length - 1));
         this.dashBoard.allPlayersIDs.push(socket.id);
+        return this.dashBoard.games[this.dashBoard.games.length - 1].gameId;
     }
     playerMovePaddle(newPostion: number, socket: Socket) {
         let gp_index = this.matchPlayerFromSocketId(socket)
@@ -85,21 +90,18 @@ export class gameService {
     drawPaddles(socket: Socket) {
         let gp_index = this.matchPlayerFromSocketId(socket);
         let coordonation = new coordonationDTO;
-        if (this.dashBoard.games[gp_index[0]].gameStatus === 'playing') {
-            // console.log(gp_index);
-            coordonation.x = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.x;
-            coordonation.y = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.y;
-            coordonation.w = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.w;
-            coordonation.h = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.h;
-            if (gp_index[1] === 1)
-                gp_index[1] = 0;
-            else
-                gp_index[1] = 1;
-            coordonation.x_1 = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.x;
-            coordonation.y_1 = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.y;
-            coordonation.w_1 = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.w;
-            coordonation.h_1 = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.h;
-        }
+        coordonation.x = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.x;
+        coordonation.y = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.y;
+        coordonation.w = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.w;
+        coordonation.h = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.h;
+        if (gp_index[1] === 1)
+            gp_index[1] = 0;
+        else
+            gp_index[1] = 1;
+        coordonation.x_1 = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.x;
+        coordonation.y_1 = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.y;
+        coordonation.w_1 = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.w;
+        coordonation.h_1 = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.h;
         // console.log(coordonation);
         return (coordonation);
 
@@ -114,32 +116,26 @@ export class gameService {
         this.dashBoard.games[gp_index[0]].
             players[gp_index[1]].paddle.y_change = 0;
     }
-    getballposition(socket: Socket)
-    {
-        let ball_coordonation : number[] = [];
+    getballposition(socket: Socket) {
+        let ball_coordonation: number[] = [];
         let gp_index = this.matchPlayerFromSocketId(socket);
-        if (this.dashBoard.games[gp_index[0]].gameStatus === 'playing')
-        {
-            let leftPaddle = this.dashBoard.games[gp_index[0]].players[0].paddle;
-            let rightPaddle = this.dashBoard.games[gp_index[0]].players[1].paddle;
-            this.dashBoard.games[gp_index[0]].ball.update();
-            this.dashBoard.games[gp_index[0]].ball.checkRightPaddle(rightPaddle.x,
-                rightPaddle.y, rightPaddle.h);
-            this.dashBoard.games[gp_index[0]].ball.checkLeftPaddle(leftPaddle.x,
-                    leftPaddle.y, leftPaddle.h); 
-            this.dashBoard.games[gp_index[0]].ball.edges(490, 1062);
-            ball_coordonation[0] = this.dashBoard.games[gp_index[0]].ball.x;
-            ball_coordonation[1] = this.dashBoard.games[gp_index[0]].ball.y;
-        }
+        let leftPaddle = this.dashBoard.games[gp_index[0]].players[0].paddle;
+        let rightPaddle = this.dashBoard.games[gp_index[0]].players[1].paddle;
+        this.dashBoard.games[gp_index[0]].ball.update();
+        this.dashBoard.games[gp_index[0]].ball.checkRightPaddle(rightPaddle.x,
+            rightPaddle.y, rightPaddle.h);
+        this.dashBoard.games[gp_index[0]].ball.checkLeftPaddle(leftPaddle.x,
+            leftPaddle.y, leftPaddle.h);
+        this.dashBoard.games[gp_index[0]].ball.edges(490, 1062);
+        ball_coordonation[0] = this.dashBoard.games[gp_index[0]].ball.x;
+        ball_coordonation[1] = this.dashBoard.games[gp_index[0]].ball.y;
         return (ball_coordonation);
     }
-    getScore(socket: Socket)
-    {
-        let players_score : number[] = [];
+    getScore(socket: Socket) {
+        let players_score: number[] = [];
         let game_index = this.matchPlayerFromSocketId(socket);
         players_score.push(this.dashBoard.games[game_index[0]].ball.score[0]);
         players_score.push(this.dashBoard.games[game_index[0]].ball.score[1]);
-        // console.log(players_score.push(this.dashBoard.games[game_index[0]].ball.score[0]));
         return (players_score);
     }
 }

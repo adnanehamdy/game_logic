@@ -30,7 +30,8 @@ export class GameGateway implements OnGatewayDisconnect {
   // const metaData = plainToClass(metaDataDTO, Data.metadata);
     if (this.gameService.isGameOpen())
     {
-      this.gameService.joinGame(socket);
+      const gameId = this.gameService.joinGame(socket);
+      this.io.to(gameId).emit("GameStarted");
       return 'connected to a game';
     }
 
