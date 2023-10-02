@@ -12,19 +12,16 @@ import { P5CanvasInstance, ReactP5Wrapper} from "react-p5-wrapper";
 
 const GameCanvas = () => {
   const socket = useContext(SocketContext);
-  let DidGameStart = false;
+  // let DidGameStart = false;
   // let canvas;
-  let CanvasDiv;
-  socket.on('GameStarted', ()=> DidGameStart = true);
+  // let CanvasDiv;
+
   const sketch = (p5 : P5CanvasInstance) => {
     let ball_coordonation: number[] = [];
     let paddles: Paddles;
     let Score : number[] = [];
     p5.setup = () => {  
-      socket.emit('join a game', (data: string) =>
-      {
-        console.log(data);
-      });
+      // socket.emit('join a game');
       // CanvasDiv = p5.createDiv();
       // CanvasDiv.id('myDiv');
        // Set the ID for styling
@@ -35,15 +32,15 @@ const GameCanvas = () => {
     };
     
     p5.draw = () => {
-      if (!DidGameStart)
-        return ;
+      // if (!DidGameStart)
+        // return ;
       p5.resizeCanvas(p5.windowWidth / 2, p5.windowHeight / 2);
       p5.background(0);
       socket.emit("drawPaddles", (coordonation: coordonation)=>
       {
-        console.log("x = " + coordonation.x + " && " + p5.windowWidth / 2);
+        // console.log("x = " + coordonation.x + " && " + p5.windowWidth / 2);
         paddles.x = p5.map(coordonation.x, 0, 683, 0, (p5.windowWidth / 2));
-        console.log("X after = " + paddles.x);
+        // console.log("X after = " + paddles.x);
         paddles.y = p5.map(coordonation.y, 0, 331, 0, p5.windowHeight / 2);
         paddles.w = p5.map(coordonation.w, 0, 683, 0, p5.windowWidth / 2);
         paddles.h = p5.map(coordonation.h, 0, 331, 0, p5.windowHeight / 2);

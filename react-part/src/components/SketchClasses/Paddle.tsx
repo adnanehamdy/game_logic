@@ -1,9 +1,6 @@
 import p5 from "p5";
-// import { useContext } from "react";
-// import { SocketContext } from "../../contexts/SocketContext";
-// import { coordonation } from "../SketchInterfaces/coordonation";
+
 class Paddles {
-    // const socket = useContext(SocketContext);
     p5: p5;
     x : number;
     y : number;
@@ -29,9 +26,6 @@ class Paddles {
     this.p5.rectMode(this.p5.CENTER);
     console.log("draw rect");
     this.p5.rect(x, y, w, h);
-    // const socket = useContext(SocketContext);
-    // socket.emit('draw paddles', );
-        // this.p5.background(255);
     }
 }
 

@@ -25,30 +25,32 @@ export class GameGateway implements OnGatewayDisconnect {
   constructor(private readonly gameService: gameService)
   {}
 
-  @SubscribeMessage('join a game')
-  newPlayerJoined(@ConnectedSocket() socket: Socket) {
-  // const metaData = plainToClass(metaDataDTO, Data.metadata);
+  handleDisconnect(socket: Socket) {
+    
+    this.logger.log(`Cliend id:${socket.id} disconnected`);
+    const gameId = this.gameService.getGameId(socket);
+    this.io.to(gameId).emit("You Won (other client disconected)");
+
+  }
+  handleConnection(socket: Socket)
+  {
+    this.logger.log(`Client connected: ${socket.id}`);
     if (this.gameService.isGameOpen())
     {
       const gameId = this.gameService.joinGame(socket);
       this.io.to(gameId).emit("GameStarted");
+      console.log("gamestarted event");
       return 'connected to a game';
     }
-
     this.gameService.createGame(socket);
     return 'new game created';
   }
 
-  handleDisconnect(socket: Socket) {
-    
-    this.logger.log(`Cliend id:${socket.id} disconnected`);
+  // onModuleInit() {
+  //   this.io.on('connection', (socket) => {
 
-  }
-
-  onModuleInit() {
-    this.io.on('connection', (socket) => {
-    });
-  }
+  //   });
+  // }
   @SubscribeMessage('playerMovePaddle')
   playerMovePaddle(@MessageBody() newPosition :number, @ConnectedSocket() socket: Socket)
   {

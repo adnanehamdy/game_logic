@@ -54,7 +54,7 @@ export class ballClass {
     const angel =  Math.floor(Math.random() * ((Math.PI / 4)  - (-1 * Math.PI /4) + 1)) + (-1 * Math.PI /4);
     this.xspeed = 5 * Math.cos(angel);
     this.yspeed = 5 * Math.sin(angel);
-    if (Math.floor(Math.random() * 1) < 0.5)
+    if (Math.random() < 0.5)
       this.xspeed *= -1;
   }
 

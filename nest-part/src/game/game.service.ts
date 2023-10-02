@@ -19,14 +19,17 @@ export class gameService {
         this.dashBoard = new dashBoard();
         this.dashBoard.playersNumber = 0;
     }
-
+    getGameId(socket: Socket)
+    {
+        const gp_index = this.matchPlayerFromSocketId(socket);
+        return (this.dashBoard.games[gp_index[0]].gameId);
+    }        // console.log(coordonation);
     isGameOpen() {
         return (this.dashBoard.playersNumber % 2);
     }
     matchPlayerFromSocketId(socket: Socket): number[] {
         let gp_index: number[] = [];
         gp_index.push(this.dashBoard.allPlayersIDs.indexOf(socket.id));
-        // console.log("player found in " + gp_index[0]);
         gp_index.push(0);
         if (gp_index[0] % 2) {
             gp_index[0] -= 1;
@@ -102,7 +105,6 @@ export class gameService {
         coordonation.y_1 = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.y;
         coordonation.w_1 = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.w;
         coordonation.h_1 = this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.h;
-        // console.log(coordonation);
         return (coordonation);
 
     }
