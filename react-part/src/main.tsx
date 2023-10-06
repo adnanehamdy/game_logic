@@ -5,8 +5,14 @@ import './index.css'
 import { socket, SocketProvider } from './contexts/SocketContext';
 
 
+const gameMode = "botMode";
+const contextValue = {
+    socket,
+    gameMode,
+};
 ReactDOM.createRoot(document.getElementById('root')!).render(
-    <SocketProvider value={socket}>  
+
+    <SocketProvider contextValue>  
     <GameApp/>
     </SocketProvider>
 )

@@ -1,6 +1,5 @@
 import { dashBoard } from 'src/Classes/dashBoard';
 import { Injectable } from '@nestjs/common';
-// import { metaDataDTO } from 'src/DTOs/metaData.DTO';
 import { Socket } from 'socket.io';
 import { playerClass } from 'src/Classes/playerClass';
 import { ballClass } from 'src/Classes/ballClass';
@@ -12,6 +11,7 @@ import { match } from 'assert';
 import { coordonationDTO } from 'src/DTOs/coordonation.DTO';
 import { paddleClass } from 'src/Classes/paddleClass';
 import { IoAdapter } from '@nestjs/platform-socket.io';
+import { botClass } from 'src/Classes/botClass';
 @Injectable()
 export class gameService {
     private dashBoard: dashBoard;
@@ -23,7 +23,7 @@ export class gameService {
     {
         const gp_index = this.matchPlayerFromSocketId(socket);
         return (this.dashBoard.games[gp_index[0]].gameId);
-    }        // console.log(coordonation);
+    }
     isGameOpen() {
         return (this.dashBoard.playersNumber % 2);
     }
@@ -38,7 +38,7 @@ export class gameService {
         gp_index[0] /= 2;
         return (gp_index);
     }
-    createGame(@ConnectedSocket() socket: Socket) {
+    createGame(@ConnectedSocket() socket: Socket, gameMode : string) {
         const metaData =
         {
             windowWidth: 683, windowHeight: 331,
@@ -51,7 +51,7 @@ export class gameService {
         gameInstance.players.push(playerInstance);
         gameInstance.players[0].socketId = socket.id;
         gameInstance.ball = ballInstance;
-        gameInstance.gameType = 'default';
+        gameInstance.gameMode = gameMode;
         gameInstance.gameStatus = 'pending'
         gameInstance.ball.score.push(0);
         gameInstance.ball.score.push(0);
@@ -62,8 +62,25 @@ export class gameService {
         this.dashBoard.allPlayersIDs.push(socket.id);
         console.log('game created');
     }
+    botJoinGame()
+    {
+        const metaData =
+        {
+            windowWidth: 683, windowHeight: 331,
+            width: 100, height: 100
+        };
+        let playerInstance = new botClass(metaData.windowWidth - 10,
+            metaData.windowHeight);
+        console.log("in bot join ")
+        this.dashBoard.games[this.dashBoard.games.length - 1].players[1].socketId = "botMode"
+        this.dashBoard.games[this.dashBoard.
+            games.length - 1].players.push(playerInstance);
+        this.dashBoard.games[this.dashBoard.
+            games.length - 1].gameStatus = 'playing';
+        return this.dashBoard.games[this.dashBoard.games.length - 1].gameId;
+    }
 
-    joinGame(socket: Socket) {
+    joinGame(socket: Socket, gameMode : string) {
         const metaData =
         {
             windowWidth: 683, windowHeight: 331,
@@ -108,10 +125,13 @@ export class gameService {
         return (coordonation);
 
     }
+
     updatePaddlePosition(socket: Socket) {
         let gp_index = this.matchPlayerFromSocketId(socket);
         this.dashBoard.games[gp_index[0]].
             players[gp_index[1]].paddle.update();
+        if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode')
+            this.dashBoard.games[gp_index[0]].players[1].paddle.update();
     }
     stopPaddleMove(socket: Socket) {
         let gp_index = this.matchPlayerFromSocketId(socket);
@@ -139,5 +159,14 @@ export class gameService {
         players_score.push(this.dashBoard.games[game_index[0]].ball.score[0]);
         players_score.push(this.dashBoard.games[game_index[0]].ball.score[1]);
         return (players_score);
+    }
+    getPlayersId(socket : Socket)
+    {
+        const players_id : string[] = [];
+        const gp_index = this.matchPlayerFromSocketId(socket);
+        
+        players_id.push(this.dashBoard.games[gp_index[0]].players[0].socketId);
+        players_id.push(this.dashBoard.games[gp_index[0]].players[1].socketId);
+        return players_id;
     }
 }

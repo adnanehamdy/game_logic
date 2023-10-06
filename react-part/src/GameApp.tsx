@@ -1,24 +1,28 @@
-// import React from 'react';
-
 import GameCanvas from './components/Sketch';
-import { socket, SocketProvider } from './contexts/SocketContext';
+import { socket } from './contexts/SocketContext';
 import { useState } from 'react';
 import "./App.css"  
-// import { ReactP5Wrapper } from 'react-p5-wrapper';
 function GameApp() {
-  const [isPlayerConnected, setPlayerConnected] = useState(false);
-  const [gameState, setGameState] = useState('pending');
+  let custom_msg : string;
+  const [RenderCanvas, setRenderCanvas] = useState(false);
+  const [gameState, setGameState] = useState('pending'); 
+  const gameMode = 'botMode';
+  socket.emit('gameMode', gameMode);
   socket.on('GameStarted', ()=>
   {
-    setPlayerConnected(true);
+    setRenderCanvas(true);
     setGameState('playing');
   });
-  socket.on('GameState', (State) =>
+  socket.on('Game result', (result_msg)=>
   {
-    setGameState(State);
+    setGameState(result_msg + "Won");
+    setRenderCanvas(false);
   });
-  console.log(isPlayerConnected);
-  return isPlayerConnected ? (<GameCanvas/>) : (<h1>waiting ... </h1>);
+  custom_msg = gameState;
+  // socket.on('connect', () =>
+  // { 
+  // })
+  return RenderCanvas ? (<GameCanvas/>) : (<h1> {custom_msg} </h1>);
 
 }
 export default GameApp;

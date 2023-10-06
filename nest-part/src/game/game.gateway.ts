@@ -3,13 +3,13 @@ import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSo
 import { Server , Socket} from 'socket.io';
 import { gameService  } from './game.service';
 import { randomUUID } from 'crypto';
-// import { metaDataDTO } from 'src/DTOs/metaData.DTO';
 import { MetadataScanner } from '@nestjs/core';
 import { plainToClass } from 'class-transformer';
 import {metaData } from '../interfaces/metaData';
 import { subscribe } from 'diagnostics_channel';
 import { Logger } from '@nestjs/common';
 import { OnGatewayDisconnect } from '@nestjs/websockets';
+
 @WebSocketGateway(
   {
     cors: {
@@ -26,31 +26,39 @@ export class GameGateway implements OnGatewayDisconnect {
   {}
 
   handleDisconnect(socket: Socket) {
-    
     this.logger.log(`Cliend id:${socket.id} disconnected`);
     const gameId = this.gameService.getGameId(socket);
-    this.io.to(gameId).emit("You Won (other client disconected)");
-
+    const PlayersId = this.gameService.getPlayersId(socket);
+    // const playerId = socket.id ? PlayersId[0] : PlayersId[1];
+    this.io.to(gameId).emit("Game result");
   }
+
   handleConnection(socket: Socket)
   {
+    let gameMode : string;
     this.logger.log(`Client connected: ${socket.id}`);
+  //   socket.on('gameMode', (Mode)=> {
+  //     gameMode = Mode
+  //     console.log("on " + Mode);
+  // })
     if (this.gameService.isGameOpen())
     {
-      const gameId = this.gameService.joinGame(socket);
+      const gameId = this.gameService.joinGame(socket, gameMode);
       this.io.to(gameId).emit("GameStarted");
-      console.log("gamestarted event");
       return 'connected to a game';
     }
-    this.gameService.createGame(socket);
-    return 'new game created';
+    this.gameService.createGame(socket, gameMode);
+    console.log(gameMode);
+    if (gameMode === 'botMode')
+    {
+      console.log("the game is in bot mode")  ;
+      this.gameService.botJoinGame()
+      const gameId = this.gameService.getGameId(socket);
+      this.io.to(gameId).emit("GameStarted");
+    }
+    return 'new game cretead';
   }
 
-  // onModuleInit() {
-  //   this.io.on('connection', (socket) => {
-
-  //   });
-  // }
   @SubscribeMessage('playerMovePaddle')
   playerMovePaddle(@MessageBody() newPosition :number, @ConnectedSocket() socket: Socket)
   {
@@ -81,6 +89,19 @@ export class GameGateway implements OnGatewayDisconnect {
   @SubscribeMessage("getScore")
   getScore(@ConnectedSocket() socket: Socket)
   {
-    return (this.gameService.getScore(socket));
+    const Score = this.gameService.getScore(socket);
+    const gameId = this.gameService.getGameId(socket);
+    const PlayersId = this.gameService.getPlayersId(socket);
+    if (Score[0] == 3)
+    {
+      this.io.to(gameId).emit("Game result", (PlayersId[0]));
+      console.log("end");
+    }
+    else if (Score[1] == 3)
+    {
+      this.io.to(gameId).emit("Game result", (PlayersId[1]));
+      console.log("end");
+    }
+    return Score;
   }
-}
+  }
