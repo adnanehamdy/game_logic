@@ -14,22 +14,36 @@ export class paddleClass {
     }
     update = () => {
         this.y += this.y_change;
-        // console.log(this.height);
         if (this.y < this.h /2)
             this.y = this.h/2;
         else if ((this.height - (this.h / 2)) < this.y)
             this.y = this.height - (this.h / 2);
-        
-        // console.log("y = " + this.y)
-        // this.y = this.p5.constrain(this.y, this.h / 2, this.p5.height - this.h / 2)
-        // this.y_change = 0;
     }
-    move = (steps: number) =>
-        this.y_change = steps;
-
-    // show = () => {
-    //     // this.p5.background(255);
-    //     this.p5.rectMode(this.p5.CENTER);
-    //     this.p5.rect(this.x, this.y, this.w, this.h);
-    // }
+    move = (steps : number, ball_y?: number) =>
+    {
+        const halfWindowWidth = 683 / 2;
+        if (ball_y === undefined)
+            this.y_change = steps * 0.6;      
+        else
+        {
+            // if (Math.random)
+            if (this.y - (this.h / 2) > ball_y)
+            {   
+                    this.y_change = -15 * 0.6;
+            }
+            else if (this.y + (this.h / 2 ) < ball_y)
+            {
+                // if (Math.random() < 0.25)
+                //     this.y_change = 15;
+                // else
+                    this.y_change = 15 * 0.6;
+            }
+            // if (Math.random() < 0.10)
+                // this.y_change *= -1;
+            if (this.y < this.h /2)
+                this.y = this.h/2;
+            else if ((this.height - (this.h / 2)) <  this.y)
+                this.y = this.height - (this.h / 2);
+        }
+    }
 }

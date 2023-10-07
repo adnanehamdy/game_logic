@@ -29,23 +29,20 @@ export class GameGateway implements OnGatewayDisconnect {
     this.logger.log(`Cliend id:${socket.id} disconnected`);
     const gameId = this.gameService.getGameId(socket);
     const PlayersId = this.gameService.getPlayersId(socket);
-    // const playerId = socket.id ? PlayersId[0] : PlayersId[1];
     this.io.to(gameId).emit("Game result");
   }
 
-  handleConnection(socket: Socket)
+  handleConnection(@ConnectedSocket() socket: Socket)
   {
-    let gameMode : string;
+    // console.log("query");
+    // console.log(socket.handshake.query.message);
+    let gameMode = socket.handshake.query.message;
     this.logger.log(`Client connected: ${socket.id}`);
-  //   socket.on('gameMode', (Mode)=> {
-  //     gameMode = Mode
-  //     console.log("on " + Mode);
-  // })
     if (this.gameService.isGameOpen())
     {
       const gameId = this.gameService.joinGame(socket, gameMode);
       this.io.to(gameId).emit("GameStarted");
-      return 'connected to a game';
+      return 'connected to a game'; 
     }
     this.gameService.createGame(socket, gameMode);
     console.log(gameMode);

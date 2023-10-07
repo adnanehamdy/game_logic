@@ -1,3 +1,4 @@
+// import { botPaddleClass } from './botPaddleClass';
 import { paddleClass } from './paddleClass';
 
 export class botClass{

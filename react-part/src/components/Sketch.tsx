@@ -6,8 +6,7 @@ import { P5CanvasInstance, ReactP5Wrapper} from "react-p5-wrapper";
 
 const GameCanvas = () => {
   const socket = useContext(SocketContext);
-  // socket.emit("gameMode", gameMode);
-  console.log(socket.id);
+  console.log("GameCanvas");
   const sketch = (p5 : P5CanvasInstance) => {
     let ball_coordonation: number[] = [];
     let paddles: Paddles;

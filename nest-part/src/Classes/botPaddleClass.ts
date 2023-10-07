@@ -1,5 +1,5 @@
 
-export class paddleClass {
+export class botPaddleClass {
     x: number;
     y: number;
     w = 10;

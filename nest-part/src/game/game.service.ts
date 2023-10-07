@@ -11,7 +11,8 @@ import { match } from 'assert';
 import { coordonationDTO } from 'src/DTOs/coordonation.DTO';
 import { paddleClass } from 'src/Classes/paddleClass';
 import { IoAdapter } from '@nestjs/platform-socket.io';
-import { botClass } from 'src/Classes/botClass';
+import { botClass } from 'src/Classes/botClass';   
+
 @Injectable()
 export class gameService {
     private dashBoard: dashBoard;
@@ -19,8 +20,7 @@ export class gameService {
         this.dashBoard = new dashBoard();
         this.dashBoard.playersNumber = 0;
     }
-    getGameId(socket: Socket)
-    {
+    getGameId(socket: Socket) {
         const gp_index = this.matchPlayerFromSocketId(socket);
         return (this.dashBoard.games[gp_index[0]].gameId);
     }
@@ -38,7 +38,7 @@ export class gameService {
         gp_index[0] /= 2;
         return (gp_index);
     }
-    createGame(@ConnectedSocket() socket: Socket, gameMode : string) {
+    createGame(@ConnectedSocket() socket: Socket, gameMode: string | string[]) {
         const metaData =
         {
             windowWidth: 683, windowHeight: 331,
@@ -52,7 +52,7 @@ export class gameService {
         gameInstance.players[0].socketId = socket.id;
         gameInstance.ball = ballInstance;
         gameInstance.gameMode = gameMode;
-        gameInstance.gameStatus = 'pending'
+        gameInstance.gameStatus = 'Waiting'
         gameInstance.ball.score.push(0);
         gameInstance.ball.score.push(0);
         gameInstance.gameId = randomUUID();
@@ -60,10 +60,9 @@ export class gameService {
         this.dashBoard.games.push(gameInstance);
         this.dashBoard.playersNumber++;
         this.dashBoard.allPlayersIDs.push(socket.id);
-        console.log('game created');
+        // console.log('Game created');
     }
-    botJoinGame()
-    {
+    botJoinGame() {
         const metaData =
         {
             windowWidth: 683, windowHeight: 331,
@@ -72,15 +71,16 @@ export class gameService {
         let playerInstance = new botClass(metaData.windowWidth - 10,
             metaData.windowHeight);
         console.log("in bot join ")
-        this.dashBoard.games[this.dashBoard.games.length - 1].players[1].socketId = "botMode"
+        // playerInstance.socketId = "botMode";
         this.dashBoard.games[this.dashBoard.
             games.length - 1].players.push(playerInstance);
+        this.dashBoard.games[this.dashBoard.games.length - 1].players[1].socketId = "botMode"
         this.dashBoard.games[this.dashBoard.
             games.length - 1].gameStatus = 'playing';
         return this.dashBoard.games[this.dashBoard.games.length - 1].gameId;
     }
 
-    joinGame(socket: Socket, gameMode : string) {
+    joinGame(socket: Socket, gameMode: string | string[]) {
         const metaData =
         {
             windowWidth: 683, windowHeight: 331,
@@ -101,10 +101,9 @@ export class gameService {
     playerMovePaddle(newPostion: number, socket: Socket) {
         let gp_index = this.matchPlayerFromSocketId(socket)
 
-        console.log("game related to player" + gp_index[0]);
         const foundsocket = this.dashBoard.games[gp_index[0]].players[gp_index[1]].socketId;
         this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.move(newPostion);
-        console.log("found socket" + foundsocket);
+        // console.log("found socket" + foundsocket);
     }
 
     drawPaddles(socket: Socket) {
@@ -130,13 +129,31 @@ export class gameService {
         let gp_index = this.matchPlayerFromSocketId(socket);
         this.dashBoard.games[gp_index[0]].
             players[gp_index[1]].paddle.update();
+            // var diff = 0.25;
+        // if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode' && Math.random() < 0.5)
+        //     this.dashBoard.games[gp_index[0]].players[1].paddle
+        //         .move(this.dashBoard.games[gp_index[0]].ball.x + 12
+        //             , this.dashBoard.games[gp_index[0]].ball.y + 12)
+        setTimeout(() => {
+            if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode' &&  Math.random() < 0.75 && this.dashBoard.games[gp_index[0]].ball.x > 683 / 2) {
+              this.dashBoard.games[gp_index[0]].players[1].paddle.move(undefined, this.dashBoard.games[gp_index[0]].ball.y);
+              if (Math.random() < 0.10)
+                this.dashBoard.games[gp_index[0]].players[1].paddle.y_change = 0;
+            }
+          }, 1000);
+        // else if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode')
+        // else if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode')
         if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode')
-            this.dashBoard.games[gp_index[0]].players[1].paddle.update();
+        this.dashBoard.games[gp_index[0]].players[1].paddle.
+        update();
+        // if (Math.random() < 0.25)
+            this.dashBoard.games[gp_index[0]].players[1].paddle.y_change = 0;
     }
     stopPaddleMove(socket: Socket) {
         let gp_index = this.matchPlayerFromSocketId(socket);
         this.dashBoard.games[gp_index[0]].
             players[gp_index[1]].paddle.y_change = 0;
+        
     }
     getballposition(socket: Socket) {
         let ball_coordonation: number[] = [];
@@ -151,6 +168,7 @@ export class gameService {
         this.dashBoard.games[gp_index[0]].ball.edges(490, 1062);
         ball_coordonation[0] = this.dashBoard.games[gp_index[0]].ball.x;
         ball_coordonation[1] = this.dashBoard.games[gp_index[0]].ball.y;
+        // bot call
         return (ball_coordonation);
     }
     getScore(socket: Socket) {
@@ -160,11 +178,10 @@ export class gameService {
         players_score.push(this.dashBoard.games[game_index[0]].ball.score[1]);
         return (players_score);
     }
-    getPlayersId(socket : Socket)
-    {
-        const players_id : string[] = [];
+    getPlayersId(socket: Socket) {
+        const players_id: string[] = [];
         const gp_index = this.matchPlayerFromSocketId(socket);
-        
+
         players_id.push(this.dashBoard.games[gp_index[0]].players[0].socketId);
         players_id.push(this.dashBoard.games[gp_index[0]].players[1].socketId);
         return players_id;
