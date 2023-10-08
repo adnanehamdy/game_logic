@@ -70,7 +70,7 @@ export class gameService {
         };
         let playerInstance = new botClass(metaData.windowWidth - 10,
             metaData.windowHeight);
-        console.log("in bot join ")
+        // console.log("in bot join ")
         // playerInstance.socketId = "botMode";
         this.dashBoard.games[this.dashBoard.
             games.length - 1].players.push(playerInstance);
@@ -79,6 +79,7 @@ export class gameService {
             games.length - 1].gameStatus = 'playing';
         return this.dashBoard.games[this.dashBoard.games.length - 1].gameId;
     }
+
 
     joinGame(socket: Socket, gameMode: string | string[]) {
         const metaData =
@@ -103,7 +104,6 @@ export class gameService {
 
         const foundsocket = this.dashBoard.games[gp_index[0]].players[gp_index[1]].socketId;
         this.dashBoard.games[gp_index[0]].players[gp_index[1]].paddle.move(newPostion);
-        // console.log("found socket" + foundsocket);
     }
 
     drawPaddles(socket: Socket) {
@@ -129,24 +129,18 @@ export class gameService {
         let gp_index = this.matchPlayerFromSocketId(socket);
         this.dashBoard.games[gp_index[0]].
             players[gp_index[1]].paddle.update();
-            // var diff = 0.25;
-        // if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode' && Math.random() < 0.5)
-        //     this.dashBoard.games[gp_index[0]].players[1].paddle
-        //         .move(this.dashBoard.games[gp_index[0]].ball.x + 12
-        //             , this.dashBoard.games[gp_index[0]].ball.y + 12)
         setTimeout(() => {
             if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode' &&  Math.random() < 0.75 && this.dashBoard.games[gp_index[0]].ball.x > 683 / 2) {
               this.dashBoard.games[gp_index[0]].players[1].paddle.move(undefined, this.dashBoard.games[gp_index[0]].ball.y);
-              if (Math.random() < 0.10)
+              if (Math.random() < this.dashBoard.games[gp_index[0]].ball.bot_error_ratio)
                 this.dashBoard.games[gp_index[0]].players[1].paddle.y_change = 0;
             }
-          }, 1000);
-        // else if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode')
-        // else if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode')
+          }, 0);
         if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode')
         this.dashBoard.games[gp_index[0]].players[1].paddle.
         update();
         // if (Math.random() < 0.25)
+        if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode')
             this.dashBoard.games[gp_index[0]].players[1].paddle.y_change = 0;
     }
     stopPaddleMove(socket: Socket) {
@@ -160,12 +154,19 @@ export class gameService {
         let gp_index = this.matchPlayerFromSocketId(socket);
         let leftPaddle = this.dashBoard.games[gp_index[0]].players[0].paddle;
         let rightPaddle = this.dashBoard.games[gp_index[0]].players[1].paddle;
+        // if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode')
+        //     this.dashBoard.games[gp_index[0]].ball.update('botMode');
+        // else
         this.dashBoard.games[gp_index[0]].ball.update();
         this.dashBoard.games[gp_index[0]].ball.checkRightPaddle(rightPaddle.x,
             rightPaddle.y, rightPaddle.h);
         this.dashBoard.games[gp_index[0]].ball.checkLeftPaddle(leftPaddle.x,
             leftPaddle.y, leftPaddle.h);
-        this.dashBoard.games[gp_index[0]].ball.edges(490, 1062);
+            if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode')
+            this.dashBoard.games[gp_index[0]].ball.edges(490, 1062, 1);
+            else
+                this.dashBoard.games[gp_index[0]].ball.edges(490, 1062);
+            
         ball_coordonation[0] = this.dashBoard.games[gp_index[0]].ball.x;
         ball_coordonation[1] = this.dashBoard.games[gp_index[0]].ball.y;
         // bot call

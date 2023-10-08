@@ -55,9 +55,9 @@ const GameCanvas = () => {
     }
     p5.keyPressed = () => {
       console.log('key_pressed');
-      if (p5.key == 'w')
+      if (p5.keyCode == p5.UP_ARROW)
         socket.emit('playerMovePaddle', -15);
-      else if (p5.key == 's')
+      else if (p5.keyCode == p5.DOWN_ARROW)
         socket.emit('playerMovePaddle', 15);
     }
   }

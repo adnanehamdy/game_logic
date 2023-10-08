@@ -8,15 +8,18 @@ export class ballClass {
   xspeed = 5;
   yspeed = 1 ;
   progress_speed = 0;
+  bot_error_ratio = 0.20;
   constructor(height: number, width: number) {
     this.height = height;
     this.width = width;
     this.reset();
   }
-  update() {
+  update(gameMode ?: string) {
     this.x = this.x + this.xspeed;
     this.y = this.y + this.yspeed;
-    this.progress_speed += 0.005;
+    // if (gameMode === 'botMode')
+      this.progress_speed += 0.005;
+    // this.progress_speed += 0.000025;
   }
   // if (this.y - this.r < p.y + p.h/2 &&
   // this.y + this.r > p.y - p.h/2 &&
@@ -61,11 +64,18 @@ export class ballClass {
       this.xspeed *= -1;
   }
 
-  edges(windowHeight: number, windowWidth: number) {
+  edges(windowHeight: number, windowWidth: number, botMode ?: number) {
     if (this.y <= 0 + 12 || this.y >= this.height - 12)
       this.yspeed  = this.yspeed * -1;
     if (this.x - 10 >= this.width)
     {
+      if (botMode)
+      {
+        if (this.bot_error_ratio === 0.10)
+          this.bot_error_ratio -= 0.05;
+        else
+          this.bot_error_ratio -= 0.10;
+      }
       this.reset();
       this.score[0] += 1;
       this.progress_speed = 0;

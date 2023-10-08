@@ -1,11 +1,11 @@
 
 export class paddleClass {
-    x: number;
+   x: number;
     y: number;
     w = 10;
     h = 80;
     y_change = 0;
-    height: number;
+    height: number;         
 
     constructor(paddle_x: number, height: number) {
         this.x = paddle_x ;
@@ -21,25 +21,15 @@ export class paddleClass {
     }
     move = (steps : number, ball_y?: number) =>
     {
-        const halfWindowWidth = 683 / 2;
+        const halfWindowWidth = 683 / 2 ;
         if (ball_y === undefined)
             this.y_change = steps * 0.6;      
         else
         {
-            // if (Math.random)
             if (this.y - (this.h / 2) > ball_y)
-            {   
                     this.y_change = -15 * 0.6;
-            }
             else if (this.y + (this.h / 2 ) < ball_y)
-            {
-                // if (Math.random() < 0.25)
-                //     this.y_change = 15;
-                // else
                     this.y_change = 15 * 0.6;
-            }
-            // if (Math.random() < 0.10)
-                // this.y_change *= -1;
             if (this.y < this.h /2)
                 this.y = this.h/2;
             else if ((this.height - (this.h / 2)) <  this.y)
