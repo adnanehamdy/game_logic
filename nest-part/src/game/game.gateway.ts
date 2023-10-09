@@ -42,17 +42,17 @@ export class GameGateway implements OnGatewayDisconnect {
     {
       const gameId = this.gameService.joinGame(socket, gameMode);
       this.io.to(gameId).emit("GameStarted");
-      return 'connected to a game'; 
     }
     this.gameService.createGame(socket, gameMode);
     console.log(gameMode);
     if (gameMode === 'botMode')
     {
-      console.log("the game is in bot mode")  ;
+      console.log("the game is in bot mode");
       this.gameService.botJoinGame()
       const gameId = this.gameService.getGameId(socket);
       this.io.to(gameId).emit("GameStarted");
     }
+    // console.log("reload")
     return 'new game cretead';
   }
 
@@ -80,6 +80,9 @@ export class GameGateway implements OnGatewayDisconnect {
   @SubscribeMessage("getballposition")
   getballposition(@ConnectedSocket() socket: Socket)
   {
+    const PlayersId = this.gameService.getPlayersId(socket);
+    if (PlayersId[0] === socket.id)
+      this.gameService.updateballposition(socket);
     return (this.gameService.getballposition(socket));
   }
   

@@ -51,7 +51,7 @@ export class ballClass {
           this.xspeed = 6 * Math.cos(angel);
           this.yspeed = 5 * Math.sin(angel);
           this.x = paddle_x - 5 - 12;
-          this.xspeed -= 1.5 + this.progress_speed;;
+          this.xspeed -= 1.5 + this.progress_speed;
         }
       }
   reset = () => {

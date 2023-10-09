@@ -80,6 +80,21 @@ export class gameService {
         return this.dashBoard.games[this.dashBoard.games.length - 1].gameId;
     }
 
+    calculateBallMoves(socket: Socket)
+    {
+        let gp_index = this.matchPlayerFromSocketId(socket);
+        let leftPaddle = this.dashBoard.games[gp_index[0]].players[0].paddle;
+        let rightPaddle = this.dashBoard.games[gp_index[0]].players[1].paddle;
+        this.dashBoard.games[gp_index[0]].ball.update();
+        this.dashBoard.games[gp_index[0]].ball.checkRightPaddle(rightPaddle.x,
+            rightPaddle.y, rightPaddle.h);
+        this.dashBoard.games[gp_index[0]].ball.checkLeftPaddle(leftPaddle.x,
+            leftPaddle.y, leftPaddle.h);
+            if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode')
+            this.dashBoard.games[gp_index[0]].ball.edges(490, 1062, 1);
+            else
+                this.dashBoard.games[gp_index[0]].ball.edges(490, 1062);
+    }
 
     joinGame(socket: Socket, gameMode: string | string[]) {
         const metaData =
@@ -129,13 +144,13 @@ export class gameService {
         let gp_index = this.matchPlayerFromSocketId(socket);
         this.dashBoard.games[gp_index[0]].
             players[gp_index[1]].paddle.update();
-        setTimeout(() => {
+        // setTimeout(() => {
             if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode' &&  Math.random() < 0.75 && this.dashBoard.games[gp_index[0]].ball.x > 683 / 2) {
               this.dashBoard.games[gp_index[0]].players[1].paddle.move(undefined, this.dashBoard.games[gp_index[0]].ball.y);
               if (Math.random() < this.dashBoard.games[gp_index[0]].ball.bot_error_ratio)
                 this.dashBoard.games[gp_index[0]].players[1].paddle.y_change = 0;
             }
-          }, 0);
+        //   }, 0);
         if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode')
         this.dashBoard.games[gp_index[0]].players[1].paddle.
         update();
@@ -149,24 +164,30 @@ export class gameService {
             players[gp_index[1]].paddle.y_change = 0;
         
     }
-    getballposition(socket: Socket) {
-        let ball_coordonation: number[] = [];
+    updateballposition(socket: Socket)
+    {
         let gp_index = this.matchPlayerFromSocketId(socket);
         let leftPaddle = this.dashBoard.games[gp_index[0]].players[0].paddle;
         let rightPaddle = this.dashBoard.games[gp_index[0]].players[1].paddle;
-        // if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode')
-        //     this.dashBoard.games[gp_index[0]].ball.update('botMode');
-        // else
-        this.dashBoard.games[gp_index[0]].ball.update();
+            // if (gp_index[1] === 0)
+            this.dashBoard.games[gp_index[0]].ball.update();
+        console.log('hello');
         this.dashBoard.games[gp_index[0]].ball.checkRightPaddle(rightPaddle.x,
             rightPaddle.y, rightPaddle.h);
         this.dashBoard.games[gp_index[0]].ball.checkLeftPaddle(leftPaddle.x,
             leftPaddle.y, leftPaddle.h);
             if (this.dashBoard.games[gp_index[0]].gameMode === 'botMode')
             this.dashBoard.games[gp_index[0]].ball.edges(490, 1062, 1);
-            else
+            else    
                 this.dashBoard.games[gp_index[0]].ball.edges(490, 1062);
-            
+    }
+
+    getballposition(socket: Socket) {
+        let ball_coordonation: number[] = [];
+        let gp_index = this.matchPlayerFromSocketId(socket);
+        let leftPaddle = this.dashBoard.games[gp_index[0]].players[0].paddle;
+        let rightPaddle = this.dashBoard.games[gp_index[0]].players[1].paddle;
+
         ball_coordonation[0] = this.dashBoard.games[gp_index[0]].ball.x;
         ball_coordonation[1] = this.dashBoard.games[gp_index[0]].ball.y;
         // bot call
