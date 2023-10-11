@@ -20,39 +20,62 @@ import { OnGatewayDisconnect } from '@nestjs/websockets';
 export class GameGateway implements OnGatewayDisconnect {
   @WebSocketServer()
   io: Server;
+  private intervalId: NodeJS.Timeout;
 
   private readonly logger = new Logger(GameGateway.name);
+  // private   initalTime : number;
   constructor(private readonly gameService: gameService)
   {}
-
+  
   handleDisconnect(socket: Socket) {
     this.logger.log(`Cliend id:${socket.id} disconnected`);
     const gameId = this.gameService.getGameId(socket);
-    const PlayersId = this.gameService.getPlayersId(socket);
     this.io.to(gameId).emit("Game result");
+    this.gameService.stopInterval(socket);
+    this.gameService.removeGame(socket);
+    console.log("socket " + socket.id);
+    this.io.to(gameId).emit("disconnectAll");
   }
 
   handleConnection(@ConnectedSocket() socket: Socket)
   {
-    // console.log("query");
-    // console.log(socket.handshake.query.message);
-    let gameMode = socket.handshake.query.message;
+    let gameMode = socket.handshake.query.gameMode;
+    let gamedutation = socket.handshake.query.gameDuration;
+    
     this.logger.log(`Client connected: ${socket.id}`);
     if (this.gameService.isGameOpen())
     {
       const gameId = this.gameService.joinGame(socket, gameMode);
       this.io.to(gameId).emit("GameStarted");
+      setTimeout(() => {
+        this.io.to(gameId).emit('delay', 'afterdelay');
+        this.gameService.gameTimer(socket, new Date().getTime());
+        // console.log(this.gameService.getTime(socket));
+        // this.gameService.startInterval(socket);
+      }, 1000);
+      return ;
     }
-    this.gameService.createGame(socket, gameMode);
+    this.gameService.createGame(socket, gameMode, gamedutation);
     console.log(gameMode);
     if (gameMode === 'botMode')
     {
-      console.log("the game is in bot mode");
       this.gameService.botJoinGame()
       const gameId = this.gameService.getGameId(socket);
       this.io.to(gameId).emit("GameStarted");
+      setTimeout(() => {
+        this.io.to(gameId).emit('delay', 'afterdelay');
+        // this.initalTime = new Date().getTime();
+        this.gameService.gameTimer(socket, 1);
+        // console.log(new Date().getTime());
+        // console.log( this.gameService.gameTimer(socket, new Date().getTime()));
+        this.intervalId = setInterval(()=>
+        {
+          this.gameService.updateballposition(socket);
+          this.gameService.gameTimer(socket);
+        }
+        , 16)
+      }, 1000);
     }
-    // console.log("reload")
     return 'new game cretead';
   }
 
@@ -77,31 +100,32 @@ export class GameGateway implements OnGatewayDisconnect {
   {
     this.gameService.stopPaddleMove(socket);
   }
+
   @SubscribeMessage("getballposition")
   getballposition(@ConnectedSocket() socket: Socket)
   {
     const PlayersId = this.gameService.getPlayersId(socket);
-    if (PlayersId[0] === socket.id)
-      this.gameService.updateballposition(socket);
     return (this.gameService.getballposition(socket));
   }
   
   @SubscribeMessage("getScore")
   getScore(@ConnectedSocket() socket: Socket)
   {
-    const Score = this.gameService.getScore(socket);
     const gameId = this.gameService.getGameId(socket);
-    const PlayersId = this.gameService.getPlayersId(socket);
-    if (Score[0] == 3)
-    {
-      this.io.to(gameId).emit("Game result", (PlayersId[0]));
-      console.log("end");
-    }
-    else if (Score[1] == 3)
-    {
-      this.io.to(gameId).emit("Game result", (PlayersId[1]));
-      console.log("end");
-    }
+    this.io.to(gameId).emit('gameTimer', this.gameService.getTime(socket))
+    const Score = this.gameService.getScore(socket);
+    // const gameId = this.gameService.getGameId(socket);
+    // const PlayersId = this.gameService.getPlayersId(socket);
+    // if (Score[0] == 3)
+    // {
+    //   // this.io.to(gameId).emit("Game result", (PlayersId[0]));
+    //   console.log("end");
+    // }
+    // else if (Score[1] == 3)
+    // {
+    //   // this.io.to(gameId).emit("Game result", (PlayersId[1]));
+    //   console.log("end");
+    // }
     return Score;
   }
   }

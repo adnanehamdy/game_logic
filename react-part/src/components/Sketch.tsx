@@ -12,6 +12,7 @@ const GameCanvas = () => {
     let ball_coordonation: number[] = [];
     let paddles: Paddles;
     let Score : number[] = [];
+    let time : number[] = []
     p5.setup = () => {  
       p5.createCanvas(p5.windowWidth / 2, p5.windowHeight / 2);
       paddles = new Paddles(p5);
@@ -24,10 +25,8 @@ const GameCanvas = () => {
     p5.draw = () => {
       p5.resizeCanvas(p5.windowWidth / 2, p5.windowHeight / 2);
       p5.background(0);
-      // setInterval(()=>
-      // {
-        // if (canvasTime === 'afterdelay')
-        // {
+      if  (canvasTime == 'afterdelay')
+      {
           socket.emit("drawPaddles", (coordonation: coordonation)=>
           {
             paddles.x = p5.map(coordonation.x, 0, 683, 0, (p5.windowWidth / 2));
@@ -47,6 +46,11 @@ const GameCanvas = () => {
               ball_coordonation[1] = p5.map(coordonation[1], 0, 331, 0, p5.windowHeight / 2);
               ball_coordonation[2] = p5.map(24, 0, 683, 0, p5.windowWidth /2);
             });
+            socket.on('gameTimer', (currentTime : number[])=>
+            {
+              time[0] = currentTime[0];
+              time[1] = currentTime[1];
+            })
             p5.ellipse(ball_coordonation[0], ball_coordonation[1], ball_coordonation[2], ball_coordonation[2]);
             socket.emit("updatePaddlePosition");
             socket.emit("getScore", (score : number[])=>
@@ -54,10 +58,10 @@ const GameCanvas = () => {
               Score[0] = score[0];
               Score[1] = score[1];
             })
-        // }
-      // )
+          }
         p5.fill(255);
         p5.textSize(32);
+        p5.text(time[0] + ":" + time[1], p5.height / 2 ,p5.width / 2);
         p5.text(Score[0], 32, 40, 40);
         p5.text(Score[1], p5.windowWidth / 2 - 32, 40, 40);
     };

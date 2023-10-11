@@ -25,6 +25,7 @@ export class gameService {
         return (this.dashBoard.games[gp_index[0]].gameId);
     }
     isGameOpen() {
+        // console.log("number of players = " + this.dashBoard.playersNumber);
         return (this.dashBoard.playersNumber % 2);
     }
     matchPlayerFromSocketId(socket: Socket): number[] {
@@ -38,7 +39,7 @@ export class gameService {
         gp_index[0] /= 2;
         return (gp_index);
     }
-    createGame(@ConnectedSocket() socket: Socket, gameMode: string | string[]) {
+    createGame(@ConnectedSocket() socket: Socket, gameMode: string | string[], gameDuration : string | string[]) {
         const metaData =
         {
             windowWidth: 683, windowHeight: 331,
@@ -50,6 +51,7 @@ export class gameService {
         let ballInstance = new ballClass(metaData.windowHeight, metaData.windowWidth);
         gameInstance.players.push(playerInstance);
         gameInstance.players[0].socketId = socket.id;
+        gameInstance.gameDuration = parseInt(gameDuration.toString(), 10);
         gameInstance.ball = ballInstance;
         gameInstance.gameMode = gameMode;
         gameInstance.gameStatus = 'Waiting'
@@ -58,10 +60,11 @@ export class gameService {
         gameInstance.gameId = randomUUID();
         socket.join(gameInstance.gameId);
         this.dashBoard.games.push(gameInstance);
-        this.dashBoard.playersNumber++;
+        this.dashBoard.playersNumber += 1;
         this.dashBoard.allPlayersIDs.push(socket.id);
         // console.log('Game created');
     }
+
     botJoinGame() {
         const metaData =
         {
@@ -70,14 +73,56 @@ export class gameService {
         };
         let playerInstance = new botClass(metaData.windowWidth - 10,
             metaData.windowHeight);
-        // console.log("in bot join ")
-        // playerInstance.socketId = "botMode";
         this.dashBoard.games[this.dashBoard.
             games.length - 1].players.push(playerInstance);
         this.dashBoard.games[this.dashBoard.games.length - 1].players[1].socketId = "botMode"
         this.dashBoard.games[this.dashBoard.
             games.length - 1].gameStatus = 'playing';
+        this.dashBoard.playersNumber += 1;
         return this.dashBoard.games[this.dashBoard.games.length - 1].gameId;
+    }
+
+    gameTimer(socket: Socket , time ?: number)
+    {
+        let gp_index = this.matchPlayerFromSocketId(socket);
+        if (time)
+        {
+            this.dashBoard.games[gp_index[0]].initialTime = new Date().getTime();
+            this.startInterval(socket);
+        }
+        var currentTime = new Date().getTime();
+        var timeDifference = currentTime - this.dashBoard.games[gp_index[0]].initialTime;
+        this.dashBoard.games[gp_index[0]].currentTime[0] = Math.floor(timeDifference / (1000 * 60));
+        this.dashBoard.games[gp_index[0]].currentTime[1] = Math.floor((timeDifference % (1000 * 60)) / 1000);
+    }
+
+    startInterval(socket :  Socket)
+    {
+        let gp_index = this.matchPlayerFromSocketId(socket);
+
+        this.dashBoard.games[gp_index[0]].intervalId = setInterval(()=>
+        {
+          this.updateballposition(socket);
+          this.gameTimer(socket);
+        //   console.log("timer");
+          }
+        , 16)
+    }
+
+    getTime(socket : Socket)
+    {
+        let gp_index = this.matchPlayerFromSocketId(socket);
+        // console.log("current = " + this.dashBoard.games[gp_index[0]].initialTime);
+        // console.log("game = " + gp_index[0])
+        return (this.dashBoard.games[gp_index[0]].currentTime);
+    }
+
+    stopInterval(socket : Socket)
+    {
+        let gp_index = this.matchPlayerFromSocketId(socket);
+
+        if (this.dashBoard.games[gp_index[0]].intervalId)
+            clearInterval(this.dashBoard.games[gp_index[0]].intervalId); 
     }
 
     calculateBallMoves(socket: Socket)
@@ -104,16 +149,17 @@ export class gameService {
         };
         let playerInstance = new playerClass(metaData.windowWidth - 10,
             metaData.windowHeight);
+        this.dashBoard.playersNumber += 1;
         playerInstance.socketId = socket.id;
         this.dashBoard.games[this.dashBoard.
             games.length - 1].players.push(playerInstance);
-        this.dashBoard.playersNumber++;
         socket.join(this.dashBoard.games[this.dashBoard.games.length - 1].gameId);
         this.dashBoard.games[this.dashBoard.
             games.length - 1].gameStatus = 'playing';
         this.dashBoard.allPlayersIDs.push(socket.id);
         return this.dashBoard.games[this.dashBoard.games.length - 1].gameId;
     }
+
     playerMovePaddle(newPostion: number, socket: Socket) {
         let gp_index = this.matchPlayerFromSocketId(socket)
 
@@ -171,7 +217,7 @@ export class gameService {
         let rightPaddle = this.dashBoard.games[gp_index[0]].players[1].paddle;
             // if (gp_index[1] === 0)
             this.dashBoard.games[gp_index[0]].ball.update();
-        console.log('hello');
+        // console.log('hello');
         this.dashBoard.games[gp_index[0]].ball.checkRightPaddle(rightPaddle.x,
             rightPaddle.y, rightPaddle.h);
         this.dashBoard.games[gp_index[0]].ball.checkLeftPaddle(leftPaddle.x,
@@ -182,15 +228,26 @@ export class gameService {
                 this.dashBoard.games[gp_index[0]].ball.edges(490, 1062);
     }
 
+    removeGame(socket: Socket)
+    {
+        let gp_index = this.matchPlayerFromSocketId(socket);
+        const gameId = this.getGameId(socket);
+        this.dashBoard.allPlayersIDs.filter(item => item !== this.dashBoard.games[gp_index[0]].players[1].socketId);
+        this.dashBoard.allPlayersIDs.filter(item => item !== this.dashBoard.games[gp_index[0]].players[0].socketId);
+        this.dashBoard.games = this.dashBoard.games.filter(gameId => gameId !== gameId);
+        this.dashBoard.playersNumber -= 2;
+    }
+
     getballposition(socket: Socket) {
         let ball_coordonation: number[] = [];
         let gp_index = this.matchPlayerFromSocketId(socket);
+        // console.log("players number = " + this.dashBoard.playersNumber);
         let leftPaddle = this.dashBoard.games[gp_index[0]].players[0].paddle;
         let rightPaddle = this.dashBoard.games[gp_index[0]].players[1].paddle;
 
         ball_coordonation[0] = this.dashBoard.games[gp_index[0]].ball.x;
         ball_coordonation[1] = this.dashBoard.games[gp_index[0]].ball.y;
-        // bot call
+
         return (ball_coordonation);
     }
     getScore(socket: Socket) {
@@ -200,10 +257,16 @@ export class gameService {
         players_score.push(this.dashBoard.games[game_index[0]].ball.score[1]);
         return (players_score);
     }
+    // getNumberOfPlayers()
+    // {
+    //     return (this.dashBoard.playersNumber);
+    // }
     getPlayersId(socket: Socket) {
         const players_id: string[] = [];
         const gp_index = this.matchPlayerFromSocketId(socket);
 
+        // console.log()
+        // console.log("players number = " + this.dashBoard.playersNumber);
         players_id.push(this.dashBoard.games[gp_index[0]].players[0].socketId);
         players_id.push(this.dashBoard.games[gp_index[0]].players[1].socketId);
         return players_id;

@@ -6,7 +6,11 @@ export class gameClass{
     gameStatus: string;
     gameMode : string | string[];
     ball : ballClass;
+    gameDuration : number;
+    initialTime : number;
     players : playerClass[] = [];
+    intervalId : NodeJS.Timeout
+    currentTime : number[] = [];
     // score: number[] = [];
     gameType: string;
 
