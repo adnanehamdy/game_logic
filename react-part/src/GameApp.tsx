@@ -6,15 +6,14 @@ import "./App.css"
 function GameApp() {
   const socket = useContext(SocketContext)
   let custom_msg: string;
-  const [RenderCanvas, setRenderCanvas] = useState(false);
+  const [RenderCanvas, setRenderCanvas] = useState(true);
   const [gameState, setGameState] = useState('pending');
   // const gameMode = 'simple';
   // socket.emit('game Mode', gameMode);
-  socket.on('GameStarted', () => {
-    // console.log("game Started")
-    setRenderCanvas(true);
-    setGameState('playing');
-  });
+
+  socket.on('disconnectAll', () => {
+    socket.disconnect();
+  })
   socket.on('Game result', (result_msg) => {
     setGameState(result_msg + "Won");
     setRenderCanvas(false);
