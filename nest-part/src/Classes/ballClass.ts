@@ -55,7 +55,7 @@ export class ballClass {
         }
       }
   reset = () => {
-    this.x = this.width / 2;
+    this.x = this.width / 2;  
     this.y = this.height / 2;
     const angel =  Math.floor(Math.random() * ((Math.PI / 4)  - (-1 * Math.PI /4) + 1)) + (-1 * Math.PI /4);
     this.xspeed = 5 * Math.cos(angel);

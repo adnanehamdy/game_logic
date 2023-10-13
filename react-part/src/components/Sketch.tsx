@@ -48,8 +48,13 @@ const GameCanvas = () => {
       }
       else
       {
-        
-        p5.text("waiting", p5.windowWidth / 2, p5.windowHeight / 2)
+        console.log("text");
+        p5.fill(255);
+        p5.textSize(32);
+        p5.textAlign(p5.CENTER, p5.CENTER);
+        p5.text("waiting", p5.map(683 / 2, 0, 683, 0, (p5.windowWidth / 2)) ,
+         p5.map(331 / 2, 0, 331, 0, (p5.windowHeight / 2)));
+        // p5.background(0);
       }
     socket.emit("drawPaddles", (coordonation: coordonation)=>
     {

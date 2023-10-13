@@ -34,11 +34,12 @@ export class GameGateway implements OnGatewayDisconnect {
     {
       console.log("------------------ > game out" + socket.id);
       const gameId = this.gameService.getGameId(socket);
+      this.io.to(gameId).emit("disconnectAll")
       this.io.to(gameId).emit("Game  result");
       this.gameService.stopInterval(socket);
       this.gameService.removeGame(socket);
+      // this.io.emit("disconnectAll");
       console.log("socket " + socket.id)
-      this.io.to(gameId).emit("disconnectAll")
     }
   }
 
@@ -119,18 +120,6 @@ export class GameGateway implements OnGatewayDisconnect {
     const gameId = this.gameService.getGameId(socket)
     this.io.to(gameId).emit('gameTimer', this.gameService.getTime(socket));
     const Score = this.gameService.getScore(socket)
-    // const gameId = this.gameService.getGameId(socket);
-    // const PlayersId = this.gameService.getPlayersId(socket);
-    // if (Score[0] == 3)
-    // {
-    //   // this.io.to(gameId).emit("Game result", (PlayersId[0]));
-    //   console.log("end");
-    // }
-    // else if (Score[1] == 3)
-    // {
-    //   // this.io.to(gameId).emit("Game result", (PlayersId[1]));
-    //   console.log("end");
-    // }
     return Score;
   }
   }

@@ -29,6 +29,8 @@ export class gameService {
         let gameDuration = this.getGameDuration(socket);
 
         const gp_index = this.matchPlayerFromSocketId(socket);
+        console.log("socket" + socket.id);
+        console.log("game_index" + gp_index[0]);
         return (this.dashBoard.games[gameDuration].game[gp_index[0]].gameId);
     }
     isGameOpen(gameDuration: number) {
@@ -56,29 +58,34 @@ export class gameService {
         let index = 0;
         while (tmp_value !== 6)
         {
-            index = this.dashBoard.allPlayersIDs[tmp_value].PlayersIDs.indexOf(socket.id)
+            if (this.dashBoard.allPlayersIDs[tmp_value].PlayersIDs)
+                index = this.dashBoard.allPlayersIDs[tmp_value].PlayersIDs.indexOf(socket.id)
             if (index !== -1)
                 break;
             tmp_value += 1;
             // }
         }
         gameDuration = tmp_value
+        if (!this.dashBoard.games[gameDuration])
+            return ;
         // console.log("gameDuration" + gameDuration)
         // console.log(this.dashBoard.games[gameDuration].game.length);
         for (let index  = 0; index <= this.dashBoard.games[gameDuration].game.length - 1; index++)
         {
             // console.log("madkhelsh")
-            if (this.dashBoard.games[gameDuration].game[index].players[0].socketId === socket.id)
+            if (this.dashBoard.games[gameDuration].game[index].players[0] &&
+                this.dashBoard.games[gameDuration].game[index].players[0].socketId === socket.id)
             {
                 // console.log(this.dashBoard.games[gameDuration].game[index].players[0].socketId)
                 gp_index.push(index)
                 gp_index.push(0);
                 break
             }
-            else if (this.dashBoard.games[gameDuration].game[index].players[1].socketId === socket.id)
+            else if (this.dashBoard.games[gameDuration].game[index].players[1] && 
+                    this.dashBoard.games[gameDuration].game[index].players[1].socketId === socket.id)
             {
                 gp_index.push(index)
-                gp_index.push(1);
+                gp_index.push(1)
                 break;
             }
         }
@@ -202,7 +209,7 @@ export class gameService {
 
         console.log(this.dashBoard.games[gameDuration].game[gp_index[0]])
         if (this.dashBoard.games[gameDuration].game[gp_index[0]].intervalId)
-            clearInterval(this.dashBoard.games[gameDuration].game[gp_index[0]].intervalId); 
+            clearInterval(this.dashBoard.games[gameDuration].game[gp_index[0]].intervalId);
     }
 
     calculateBallMoves(socket: Socket)
@@ -255,7 +262,7 @@ export class gameService {
         let gameDuration = this.getGameDuration(socket);
 
         let coordonation = new coordonationDTO;
-        console.log(gp_index[0]);
+        // console.log(gp_index[0]);
         coordonation.x = this.dashBoard.games[gameDuration].game[gp_index[0]].players[gp_index[1]].paddle.x
         coordonation.y = this.dashBoard.games[gameDuration].game[gp_index[0]].players[gp_index[1]].paddle.y 
         coordonation.w = this.dashBoard.games[gameDuration].game[gp_index[0]].players[gp_index[1]].paddle.w
@@ -354,16 +361,20 @@ export class gameService {
             console.log("before = " + this.dashBoard.allPlayersIDs)
             this.dashBoard.allPlayersIDs[gameDuration].PlayersIDs = this.dashBoard.allPlayersIDs[gameDuration].PlayersIDs.filter(playerId => playerId !== this.dashBoard.games[gameDuration].game[gp_index[0]].players[1].socketId);
             console.log("after" + this.dashBoard.allPlayersIDs)
-            this.dashBoard.playersNumber[gameDuration].Number -= 1;
+            this.dashBoard.playersNumber[gameDuration].Number -= 1  
         }
         if (this.dashBoard.games[gameDuration].game[gp_index[0]].players[0])
         {
             this.dashBoard.allPlayersIDs[gameDuration].PlayersIDs = this.dashBoard.allPlayersIDs[gameDuration].PlayersIDs.filter(playerId => playerId !== this.dashBoard.games[gameDuration].game[gp_index[0]].players[0].socketId);
             this.dashBoard.playersNumber[gameDuration].Number -= 1;
         }
-        console.log("gameSIZE" + this.dashBoard.games[gameDuration].game.length)
-        this.dashBoard.games[gameDuration].game = this.dashBoard.games[gameDuration].game.filter(gameId => gameId !== gameId);
-        console.log("gameSIZE" + this.dashBoard.games[gameDuration].game.length)
+        console.log("-----gameSIZE" + this.dashBoard.games[gameDuration].game.length)
+        console.log("before" + this.dashBoard.games[gameDuration].game[0]);
+        console.log("gameId" + gameId);
+        console.log("gameId" + this.dashBoard.games[1].game[0].gameId);
+        this.dashBoard.games[gameDuration].game.splice(gp_index[0], 1);
+        console.log("aftre" + this.dashBoard.games[gameDuration].game[0]);
+        console.log("-----gameSIZE" + this.dashBoard.games[gameDuration].game.length)
     }
 
     getballposition(socket: Socket) {
