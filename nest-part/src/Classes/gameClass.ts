@@ -6,6 +6,7 @@ export class gameClass{
     gameStatus: string;
     gameMode : string | string[];
     ball : ballClass;
+    res : string[] = [];
     gameDuration : number;
     initialTime : number;
     players : playerClass[] = [];
@@ -15,7 +16,10 @@ export class gameClass{
     gameType: string;
 
     constructor()
-    {}
+    {
+        this.res[0] = 'default';
+        this.res[1] = 'default'
+    }
 
 
 }

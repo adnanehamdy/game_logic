@@ -12,7 +12,7 @@ export class playersType
 
 export class playersIdType
 {
-    PlayersIDs : string[] = []
+    PlayersIDs : string[] = [];
 }
 
 export class dashBoard

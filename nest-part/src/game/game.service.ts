@@ -12,7 +12,7 @@ import { coordonationDTO } from 'src/DTOs/coordonation.DTO';
 import { paddleClass } from 'src/Classes/paddleClass';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { botClass } from 'src/Classes/botClass';   
-
+// import { GameGateway } from './game.gateway';
 @Injectable()
 export class gameService {
     private dashBoard: dashBoard;
@@ -68,8 +68,6 @@ export class gameService {
         gameDuration = tmp_value
         if (!this.dashBoard.games[gameDuration])
             return ;
-        // console.log("gameDuration" + gameDuration)
-        // console.log(this.dashBoard.games[gameDuration].game.length);
         for (let index  = 0; index <= this.dashBoard.games[gameDuration].game.length - 1; index++)
         {
             // console.log("madkhelsh")
@@ -162,6 +160,12 @@ export class gameService {
     {
         let gp_index = this.matchPlayerFromSocketId(socket);
         let gameDuration = this.getGameDuration(socket);
+        let score = this.getScore(socket);
+        let PlayersID  = this.getPlayersId(socket);
+        // let res : string[] = [];
+        // res[0] = 'false';
+        // res[1] =
+        // let res = 'draw';
         if (time)
         {
             this.dashBoard.games[gameDuration].game[gp_index[0]].initialTime = new Date().getTime();
@@ -171,8 +175,26 @@ export class gameService {
         var timeDifference = currentTime - this.dashBoard.games[gameDuration].game[gp_index[0]].initialTime;
         this.dashBoard.games[gameDuration].game[gp_index[0]].currentTime[0] = Math.floor(timeDifference / (1000 * 60));
         this.dashBoard.games[gameDuration].game[gp_index[0]].currentTime[1] = Math.floor((timeDifference % (1000 * 60)) / 1000);
+        if (this.dashBoard.games[gameDuration].game[gp_index[0]].currentTime[1] === 7)
+        { 
+            if (score[0] > score[1])
+                this.dashBoard.games[gameDuration].game[gp_index[0]].res[1] = PlayersID[0];
+            else if (score[0] < score[1])
+                this.dashBoard.games[gameDuration].game[gp_index[0]].res[1] = PlayersID[1];
+                this.dashBoard.games[gameDuration].game[gp_index[0]].res[0] = 'false';
+            socket.emit('delay', this.getGameResult(socket));
+            console.log("res = " + this.getGameResult(socket));
+            socket.disconnect();
+        }
     }
 
+    getGameResult(socket: Socket)
+    {
+        let gp_index = this.matchPlayerFromSocketId(socket);
+        let gameDuration = this.getGameDuration(socket);
+
+        return (this.dashBoard.games[gameDuration].game[gp_index[0]].res);        
+    }
     startInterval(socket :  Socket)
     {
         let gp_index = this.matchPlayerFromSocketId(socket);

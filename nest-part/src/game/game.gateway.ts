@@ -1,4 +1,4 @@
-import { OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server , Socket} from 'socket.io';
 import { gameService  } from './game.service';
@@ -17,6 +17,7 @@ import { OnGatewayDisconnect } from '@nestjs/websockets';
     },
   }
 )
+@Injectable()
 export class GameGateway implements OnGatewayDisconnect {
   @WebSocketServer()
   io: Server;
@@ -33,11 +34,24 @@ export class GameGateway implements OnGatewayDisconnect {
     if (this.gameService.gameloaded(socket))
     {
       console.log("------------------ > game out" + socket.id);
-      const gameId = this.gameService.getGameId(socket);
+      const gameId = this.gameService.getGameId(socket)
+      const res = this.gameService.getGameResult(socket)
+      console.log("res = " + this.gameService.getGameResult(socket));
+
+      // console.log("res = " + res)
+      if (res[0] === 'default')
+      {
+        res[0] = 'false'
+        res[1] = 'victory';
+        console.log("dkhel");
+        // console.log("dkhel")
+      }
+      this.io.to(gameId).emit('delay', res);
+      //   console.log("kahwya")
       this.io.to(gameId).emit("disconnectAll")
-      this.io.to(gameId).emit("Game  result");
+      // this.io.to(gameId).emit("Game  result");
       this.gameService.stopInterval(socket);
-      this.gameService.removeGame(socket);
+      this.gameService.removeGame(socket)
       // this.io.emit("disconnectAll");
       console.log("socket " + socket.id)
     }
@@ -50,14 +64,19 @@ export class GameGateway implements OnGatewayDisconnect {
     let gameduration = socket.handshake.query.gameDuration;
     
     this.logger.log(`Client connected: ${socket.id}`);
-    // let gameIndex = this.gameService.isGameOpen(parseInt(gamedutation.toString(), 10))
-    // console.log
     if (this.gameService.isGameOpen(parseInt(gameduration.toString(), 10)))
     {
       const gameId = this.gameService.joinGame(socket, gameMode, parseInt(gameduration.toString(), 10))
       this.io.to(gameId).emit("GameStarted");
       setTimeout(() => {
-        this.io.to(gameId).emit('delay', 'afterdelay')
+        // socket.on("TimeIsUp", () =>
+        // {
+        //   this.handleDisconnect(socket);
+        // })
+        let result : string[] = [];
+        result[0] = 'true';
+        result[1] = undefined;
+        this.io.to(gameId).emit('delay', result);
         this.gameService.gameTimer(socket, new Date().getTime());
       }, 1000)
       return ;
@@ -67,6 +86,7 @@ export class GameGateway implements OnGatewayDisconnect {
     console.log(gameMode);
     if (gameMode === 'botMode')
     {
+      // socket.disconnect();
       this.gameService.botJoinGame(parseInt(gameduration.toString(), 10))
       const gameId = this.gameService.getGameId(socket)
       this.io.to(gameId).emit("GameStarted")
@@ -83,6 +103,13 @@ export class GameGateway implements OnGatewayDisconnect {
     }
     return 'new game cretead';
   }
+
+    // @SubscribeMessage('timeIsUp')
+    // timeIsUp(socket : Socket)
+    // {
+    //   console.log("-------------------------> timeup");
+    //   this.handleDisconnect(socket);
+    // }
 
   @SubscribeMessage('playerMovePaddle')
   playerMovePaddle(@MessageBody() newPosition :number, @ConnectedSocket() socket: Socket)

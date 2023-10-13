@@ -6,7 +6,9 @@ import { P5CanvasInstance, ReactP5Wrapper} from "react-p5-wrapper";
 
 const GameCanvas = () => {
   const socket = useContext(SocketContext);
-  let canvasTime = 'onHold';
+  let canvasTime : string[] = [];
+  canvasTime[0] = 'false';
+  canvasTime[1] = 'waiting'
   console.log("GameCanvas");
   const sketch = (p5 : P5CanvasInstance) => {
     let ball_coordonation: number[] = [];
@@ -18,14 +20,16 @@ const GameCanvas = () => {
       paddles = new Paddles(p5);
     };
     
-    socket.on('delay',(state : string)=>
+    socket.on('delay',(state : string[])=>
     {
-        canvasTime = state;
+      canvasTime[0] = state[0];
+      canvasTime[1] = state[1];
+      console.log(canvasTime);
     })
     p5.draw = () => {
       p5.resizeCanvas(p5.windowWidth / 2, p5.windowHeight / 2);
       p5.background(0);
-      if  (canvasTime == 'afterdelay')
+      if  (canvasTime[0] === 'true')
       {
         socket.emit('getballposition', (coordonation: number[])=>
         {
@@ -45,6 +49,22 @@ const GameCanvas = () => {
           Score[0] = score[0];
           Score[1] = score[1];
         })
+        socket.emit("drawPaddles", (coordonation: coordonation)=>
+        {
+          paddles.x = p5.map(coordonation.x, 0, 683, 0, (p5.windowWidth / 2))
+          paddles.y = p5.map(coordonation.y, 0, 331, 0, p5.windowHeight / 2);
+          paddles.w = p5.map(coordonation.w, 0, 683, 0, p5.windowWidth / 2);
+          paddles.h = p5.map(coordonation.h, 0, 331, 0, p5.windowHeight / 2);
+          paddles.x_1 = p5.map(coordonation.x_1, 0, 683, 0, p5.windowWidth / 2);
+          paddles.y_1 = p5.map(coordonation.y_1, 0, 331, 0, p5.windowHeight / 2);
+          paddles.w_1 = p5.map(coordonation.w_1, 0, 683, 0, p5.windowWidth / 2);
+          paddles.h_1 = p5.map(coordonation.h_1, 0, 331, 0, p5.windowHeight / 2);
+        })
+        paddles.show(paddles.x, paddles.y, paddles.w, paddles.h);
+        paddles.show(paddles.x_1, paddles.y_1, paddles.w_1, paddles.h_1);
+        p5.text(time[0] + ":" + time[1], p5.height / 2 ,p5.width / 2);
+        p5.text(Score[0], 32, 40, 40);
+        p5.text(Score[1], p5.windowWidth / 2 - 32, 40, 40);
       }
       else
       {
@@ -52,31 +72,19 @@ const GameCanvas = () => {
         p5.fill(255);
         p5.textSize(32);
         p5.textAlign(p5.CENTER, p5.CENTER);
-        p5.text("waiting", p5.map(683 / 2, 0, 683, 0, (p5.windowWidth / 2)) ,
+        // if (canvasTime[1] === 'client')
+        // {
+        //   canvasTime[1] = 'victory';
+        // }
+        p5.text(canvasTime[1], p5.map(683 / 2, 0, 683, 0, (p5.windowWidth / 2)) ,
          p5.map(331 / 2, 0, 331, 0, (p5.windowHeight / 2)));
         // p5.background(0);
       }
-    socket.emit("drawPaddles", (coordonation: coordonation)=>
-    {
-      paddles.x = p5.map(coordonation.x, 0, 683, 0, (p5.windowWidth / 2));
-      paddles.y = p5.map(coordonation.y, 0, 331, 0, p5.windowHeight / 2);
-      paddles.w = p5.map(coordonation.w, 0, 683, 0, p5.windowWidth / 2);
-      paddles.h = p5.map(coordonation.h, 0, 331, 0, p5.windowHeight / 2);
-      paddles.x_1 = p5.map(coordonation.x_1, 0, 683, 0, p5.windowWidth / 2);
-      paddles.y_1 = p5.map(coordonation.y_1, 0, 331, 0, p5.windowHeight / 2);
-      paddles.w_1 = p5.map(coordonation.w_1, 0, 683, 0, p5.windowWidth / 2);
-      paddles.h_1 = p5.map(coordonation.h_1, 0, 331, 0, p5.windowHeight / 2);
-    })
-    paddles.show(paddles.x, paddles.y, paddles.w, paddles.h);
-    paddles.show(paddles.x_1, paddles.y_1, paddles.w_1, paddles.h_1);
     p5.fill(255);
     p5.textSize(32);
-      p5.text(time[0] + ":" + time[1], p5.height / 2 ,p5.width / 2);
-      p5.text(Score[0], 32, 40, 40);
-        p5.text(Score[1], p5.windowWidth / 2 - 32, 40, 40);
     };
     p5.keyReleased = () => {
-      socket.emit('stopPaddleMove');
+      socket.emit('stopPaddleMove')
     }
     p5.keyPressed = () => {
       console.log('key_pressed');
