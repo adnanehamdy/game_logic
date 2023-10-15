@@ -14,3 +14,22 @@
     border-radius: 33px;
     box-shadow: 0 0 40px 3px rgba(233, 132, 65, 0.8);
 }
+/* 
+.canvas-pong
+{
+  border-radius: 30px;
+  position: relative;
+} */
+
+canvas {
+  border: 16px solid;
+  border-radius: 30px;
+  /* padding: 17.5px 32px 32px; */
+  border-color: rgba(255, 255 ,555, 0.8);
+  border-radius: 33px;
+  object-fit: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  /* box-shadow: 0 0 40px 3px rgba(233, 132, 65, 0.8); */
+  background:  linear-gradient(0deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.95) 100%);
+}

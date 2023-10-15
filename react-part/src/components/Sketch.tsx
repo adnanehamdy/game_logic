@@ -3,21 +3,44 @@ import Paddles from "./SketchClasses/Paddle"
 import { SocketContext } from "../contexts/SocketContext";
 import { coordonation } from "./SketchInterfaces/coordonation";
 import { P5CanvasInstance, ReactP5Wrapper} from "react-p5-wrapper";
+import { Image } from "p5";
 
 const GameCanvas = () => {
   const socket = useContext(SocketContext);
   let canvasTime : string[] = [];
   canvasTime[0] = 'false';
   canvasTime[1] = 'waiting'
+  let backgroundImage : Image;
   console.log("GameCanvas");
   const sketch = (p5 : P5CanvasInstance) => {
     let ball_coordonation: number[] = [];
     let paddles: Paddles;
     let Score : number[] = [];
     let time : number[] = [];
-    p5.setup = () => {  
-      p5.createCanvas(p5.windowWidth / 2, p5.windowHeight / 2);
+
+    p5.setup = () => { 
+      // let canvasDiv = p5.createDiv('');
+      // canvasDiv.addClass('canvas-pong')  
+  //     // canvasDiv.size(p5.width, p5.height);
+  //     let containerDiv = p5.createDiv('');
+  // // Add a CSS class to the container div
+  p5.createCanvas(p5.windowWidth / 2, p5.windowHeight / 2);
+  // containerDiv.addClass('canvas-container');
+
+  // // Create a div element inside the container and set its content
+  // let canvasDiv = p5.createDiv('');
+  // canvasDiv.position(p5.windowWidth / 4, p5.windowHeight / 4);
+  // containerDiv.child(canvasDiv);
+
+  // // Add a CSS class to the div
+  // canvasDiv.addClass('canvas-pong');
+  // canvasDiv.size(p5.windowWidth / 2, p5.windowHeight / 2)
+
+  // // Set the border radius to make it round
+  // canvasDiv.style('border', '2px solid black');
+  // canvasDiv.style('border-radius', '10px');
       paddles = new Paddles(p5);
+      backgroundImage = p5.loadImage('/src/assets/backgroundImage.jpg');
     };
     
     socket.on('delay',(state : string[])=>
@@ -28,7 +51,9 @@ const GameCanvas = () => {
     })
     p5.draw = () => {
       p5.resizeCanvas(p5.windowWidth / 2, p5.windowHeight / 2);
-      p5.background(0);
+      // backgroundImage.resize(p5.windowWidth / 2, p5.windowHeight / 2);
+      p5.background('#E4E4E480');
+      // backgroundImage.style
       if  (canvasTime[0] === 'true')
       {
         socket.emit('getballposition', (coordonation: number[])=>
@@ -72,20 +97,18 @@ const GameCanvas = () => {
         p5.fill(255);
         p5.textSize(32);
         p5.textAlign(p5.CENTER, p5.CENTER);
-        // if (canvasTime[1] === 'client')
-        // {
-        //   canvasTime[1] = 'victory';
-        // }
         p5.text(canvasTime[1], p5.map(683 / 2, 0, 683, 0, (p5.windowWidth / 2)) ,
          p5.map(331 / 2, 0, 331, 0, (p5.windowHeight / 2)));
-        // p5.background(0);
       }
     p5.fill(255);
     p5.textSize(32);
     };
+
+
     p5.keyReleased = () => {
       socket.emit('stopPaddleMove')
     }
+
     p5.keyPressed = () => {
       console.log('key_pressed');
       if (p5.keyCode == p5.UP_ARROW)

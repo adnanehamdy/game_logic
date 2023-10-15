@@ -14,7 +14,7 @@ interface customParam
 const  Param : customParam = 
 {
   gameMode  : 'simple',
-  gameDuration: '1',
+  gameDuration: '5',
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

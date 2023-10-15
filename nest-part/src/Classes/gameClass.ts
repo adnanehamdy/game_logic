@@ -5,7 +5,7 @@ export class gameClass{
     gameId: string;
     gameStatus: string;
     gameMode : string | string[];
-    ball : ballClass;
+    ball : ballClass;   
     res : string[] = [];
     gameDuration : number;
     initialTime : number;
