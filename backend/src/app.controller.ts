@@ -47,20 +47,18 @@ export const multerConfig = {
 
 
 @Controller()
-@UseFilters(CustomExceptionsFilter)
 export class AppController {
   constructor(private readonly authService: AuthService,
-              private readonly usersService: UsersService,
-              private readonly notifications: NotificationsService,
-              ) {}
-
-  @Get('/auth')
-  @UseGuards(AuthGuard('42'))
-  async fortyTwoAuth(){
-    console.log("++++++++++++++")
-  }
-
-  @Get('/auth/callback')
+    private readonly usersService: UsersService,
+    private readonly notifications: NotificationsService,
+    ) {}
+    
+    @Get('/auth')
+    @UseGuards(AuthGuard('42'))
+    async fortyTwoAuth(){}
+    
+    @Get('/auth/callback')
+    @UseFilters(CustomExceptionsFilter)
   @UseGuards(AuthGuard('42'))
   async fortyTwoAuthcallback(@Req() req: Request, @Res({ passthrough: true }) res: Response){
 
@@ -160,25 +158,6 @@ async generateQrCode(@Res() res: Response, @Req() req:Request){
   
   return qrcode;
 }
-
-
-@Get('/check-user/:username')
-@UseGuards(Jwt2faAuthGuard)
-async loadUser(@Param('username') username: string) {
-
-    if (username === 'me')
-      return (true);
-    const user = await this.usersService.findByUsername(username);
-    if (!user){
-      console.log('false');
-      
-      return {Boolean:false};
-    }
-    console.log('true');
-
-    return {boolean:true};
-}
-
 
 @Post('2fa/turn-on')
 @UseGuards(Jwt2faAuthGuard)
@@ -299,15 +278,17 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
     }
   }
 
-  // @Get('/check-user/:username')
-  // @UseGuards(Jwt2faAuthGuard)
-  // async loadUser(@Param('username') username: string) {
-  //     const user = await this.usersService.findByUsername(username);
-  //     if (!user){
-  //       return false;
-  //     }
-  //     return true;
-  // }
+  @Get('/check-user/:username')
+  @UseGuards(Jwt2faAuthGuard)
+  async loadUser(@Param('username') username: string) {
+    if (username === 'me')
+    return {boolean:true};
+      const user = await this.usersService.findByUsername(username);
+      if (!user){
+        return {boolean:false};
+      }
+      return {boolean:true};
+  }
 
   @Get('/logout')
   @UseGuards(Jwt2faAuthGuard)
@@ -338,11 +319,11 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
     const friend = await this.usersService.findByUsername(username);
     this.notifications.sendFriendRequestNotification(us.id, friend.id);
     //emit to notifications event "friend request"
-    return 'Friend added seccussfully';
+    return ;
   }
-
-
-
+  
+  
+  
   @Post('/accept-friend/:username')
   @UseGuards(Jwt2faAuthGuard)
   async acceptFriend(@Req() req: Request, @Param('username') username: string){
@@ -354,7 +335,13 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
     }
     //create rooms for private chat here
     const isCreated = await this.usersService.createDirectRoom(us.id, username);
-    return 'Friend accepted seccussfully';
+    // return 'Friend accepted seccussfully';
+    const friend= await this.usersService.findByUsername(username);
+    return {
+      id: friend.id,
+      username: friend.username,
+      avatar:   friend.avatar
+    };
   }
 
   @Post('/block-friend/:username')
@@ -578,7 +565,15 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
     const messages = await this.usersService.getRoomMessages(+roomId);
     if (!messages)
       throw new HttpException('Failed to get messages', HttpStatus.BAD_REQUEST);
-    return messages;
+    //filter out messages of blocked users
+    let filteredMessages = [];
+    for (let i = 0; i < messages.length; i++){
+      const isBlocked = await this.usersService.checkIfUserIsBlocked(user.id, messages[i].user_id);
+      if (!isBlocked){
+        filteredMessages.push(messages[i]);
+      }
+    }
+    return filteredMessages;
   }
 
   @Get('get-other-rooms')
@@ -646,5 +641,46 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
   isLoggedin(){
     return true;
   }
+
+  @Get('get-my-role/:roomId')
+  @UseGuards(Jwt2faAuthGuard)
+  async getMyRole(@Req() req: Request, @Param('roomId') roomId: string){
+    const user = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
+    const role = await this.usersService.getMyRole(user.id, +roomId);
+    if (!role)
+      throw new HttpException('Failed to get role', HttpStatus.BAD_REQUEST);
+    return role;
+  }
+
+  @Get('get-all-users')
+  @UseGuards(Jwt2faAuthGuard)
+  async getAllUsers(@Req() req: Request){
+    const users = await this.usersService.getAllUsers();
+    if (!users)
+      throw new HttpException('Failed to get users', HttpStatus.BAD_REQUEST);
+    return users;
+  }
+
+  @Get('get-room/:roomId')
+  @UseGuards(Jwt2faAuthGuard)
+  async getRoom(@Req() req: Request, @Param('roomId') roomId: string){
+    const room = await this.usersService.getRoomById(+roomId);
+    // console.log(room)
+    if (!room)
+      throw new HttpException('Failed to get room', HttpStatus.BAD_REQUEST);
+    return room;
+  }
+
+  @Post('get-member-role/:username')
+  @UseGuards(Jwt2faAuthGuard)
+  async getMemberRole(@Req() req: Request, @Param('username') username: string, @Body() body: RoomSettingsDto){
+    const user = await this.usersService.findByUsername(username);
+    const room = await this.usersService.findRoomByName(body.name);
+    const role = await this.usersService.getMyRole(user.id, room.id);
+    if (!role)
+      throw new HttpException('Failed to get role', HttpStatus.BAD_REQUEST);
+    return role;
+  }
+
 
 }

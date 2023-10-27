@@ -172,7 +172,7 @@ export class gameService {
                 this.dashBoard.games[gameDuration].game[gp_index[0]].res[1] = 'Draw';
             }
         this.dashBoard.games[gameDuration].game[gp_index[0]].res[0] = 'false';
-        socket.emit('delay', this.getGameResult(socket));
+        socket.emit('de`lay', this.getGameResult(socket));
         socket.disconnect();
     }
 }
@@ -629,10 +629,39 @@ this.dashBoard.games[gameDuration].game[gp_index[0]].intervalId = setInterval(()
         let gameDuration = this.getGameDuration(socket);
 
         
+        
         if (this.IsDataValid(gameDuration, gp_index[0]))
-            return;
-        players_id.push(this.dashBoard.games[gameDuration].game[gp_index[0]].players[0].socketId);
-        players_id.push(this.dashBoard.games[gameDuration].game[gp_index[0]].players[1].socketId);
-        return players_id;
-    }
-}   
+        return;
+    players_id.push(this.dashBoard.games[gameDuration].game[gp_index[0]].players[0].socketId);
+    players_id.push(this.dashBoard.games[gameDuration].game[gp_index[0]].players[1].socketId);
+    return players_id;
+}
+getPlayerUserId(socket: Socket) {
+    const players_id: number[] = [];
+    const gp_index = this.matchPlayerFromSocketId(socket)
+    console.log('gp_index', gp_index);
+    let gameDuration = this.getGameDuration(socket);
+    let playersIDs : number[] = [];
+    playersIDs.push(this.dashBoard.games[gameDuration].game[gp_index[0]].players[0].user_id);
+    playersIDs.push(this.dashBoard.games[gameDuration].game[gp_index[0]].players[1].user_id);
+
+    
+    return (playersIDs);
+    // if (this.IsDataValid(gameDuration, gp_index[0]))
+    // {
+    //     if (this.dashBoard.games[gameDuration] && this.dashBoard.games[gameDuration].game 
+    //             && this.dashBoard.games[gameDuration])
+    //     {
+    //         if (this.dashBoard.games[gameDuration].game[gp_index[0]].players[0] === undefined)
+    //         return ((this.dashBoard.games[gameDuration].game[gp_index[0]].players[1].user_id))
+    //         return ((this.dashBoard.games[gameDuration].game[gp_index[0]].players[0].user_id))
+    //     }
+    //     else
+    //         return ;
+    // }
+    // if (this.dashBoard.games[gameDuration].game[gp_index[0]].players[0].socketId === socket.id)
+    //     return (this.dashBoard.games[gameDuration].game[gp_index[0]].players[0].user_id)
+    // else
+    //     return (this.dashBoard.games[gameDuration].game[gp_index[0]].players[1].user_id);
+    // }
+}

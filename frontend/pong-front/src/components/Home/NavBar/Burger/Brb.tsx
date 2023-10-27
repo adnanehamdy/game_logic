@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { Avatar } from "../Avatar";
 import { Friends } from "../../Friends/friends";
 import { UserContext } from "../../../../pages/Profile";
+import { useProfilecontext } from "../../../../ProfileContext";
 
 export function Brb() {
   const initialColors: { [key: string]: string } = {
@@ -53,7 +54,8 @@ export function Brb() {
     setstrokeColor(newImgs);
   };
 
-	const data = useContext(UserContext);
+    const [data , setData] = useProfilecontext();
+	// const data = useContext(UserContext);
 
   return (
     <>

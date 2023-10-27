@@ -15,12 +15,12 @@ import { JwtService } from "@nestjs/jwt";
 import { WsException } from "@nestjs/websockets";
 import { joinRoomDto } from "./dto/joinRoom.dto";
 import { ChatDto } from "./dto/chat.dto";
-// import { StateDto } from "./dto/state.dto";
 import { StateDto } from "./dto/state.dto";
+
 import { OnEvent } from "@nestjs/event-emitter";
 import { NotificationsService } from "./event.notifications";
 import { CustomWsExceptionsFilter } from "./custom-ws-exception.filter";
-import { Logger } from "@nestjs/common";
+
 @WebSocketGateway(
     {
         path: '/chat',
@@ -32,7 +32,6 @@ import { Logger } from "@nestjs/common";
 @UsePipes(ValidationPipe)
 @UseFilters(CustomWsExceptionsFilter)
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
-    private readonly logger = new Logger(ChatGateway.name)
     constructor(private usersService: UsersService, private jwtService: JwtService, private notifications: NotificationsService) {}
 
     @WebSocketServer() server: Server = new Server();
@@ -61,11 +60,29 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
                     // console.log("isSaved = ",isSaved);
                     //send the message to the room
                     if (isSaved){
-                        this.server.to(payload.roomId).emit('chat', payload); //broadcast messages
+                        //exclude the blocked users
+                        const roomClients = this.server.sockets.adapter.rooms.get(payload.roomId);
+                        if (roomClients){
+                            const ClientSocketIds = Array.from(roomClients);
+
+                            for (let i=0; i< ClientSocketIds.length; i++){
+                                // if his not blocked send the message
+                                const userId = this.clients.get(ClientSocketIds[i]);
+                                const isblocked = await this.usersService.isFriendBlocked(userId, this.clients.get(client.id));
+                                if (!isblocked)
+                                    this.server.to(ClientSocketIds[i]).emit('chat', payload); //send message
+                            }
+                        }
+                        // this.server.to(payload.roomId).except(payload.blockedUsers).emit('chat', payload); //broadcast messages
+                        // this.server.to(payload.roomId).emit('chat', payload); //broadcast messages
                     }
                 }
+                // else{
+                //     console.log("client is muted");
+                // }
             }
-        }    
+        }
+        // return  payload;  
     }
 
     @SubscribeMessage('join-room')
@@ -98,30 +115,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
     }
 
-    @SubscribeMessage('State')
-    async handleStateEvent(@MessageBody() payload: StateDto, @ConnectedSocket() client: Socket) {
-        console.log('wslat State', payload.state);
-            //save the state to the database
-            try{
-                const userId = this.clients.get(client.id);
-                const user = await this.usersService.findById(userId);
-                if (payload.state === "endgame")
-                    payload.state = "online";
-                const isSaved = await this.notifications.saveUserState(userId, payload.state);
-                if (isSaved)
-                {
-                    console.log('broadcastih')
-                    this.server.emit('State', {id: userId, username: user.username, avatar: user.avatar, state: payload.state});
-                }
-        }
-        catch(error){
-            // console.log(error);
-            throw new WsException('Error occured while saving the state');
-        }
-    }
-
     async handleConnection(@ConnectedSocket() client: Socket): Promise<void> {
-        this.logger.log(`Client connected: ${client.id}`)
+        // this.logger.log(`Client connected: ${client.id}`)
         try {
             const Cookie = client.handshake.headers.cookie.split("=")[1];
             // console.log("Cookie = ",Cookie);
@@ -144,7 +139,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
                     //broadcast the user state change to all connected the users
                      this.server.emit('State', {id: user.id, username: user.username, avatar: user.avatar, state: "online"});
                 }                
-                else (test.state !== "ingame"){
+                else if (test.state !== "ingame")
+                {
                     const isSaved = await this.notifications.saveUserState(user.id, "online");
                     //broadcast the user state change to all connected the users
                     this.server.emit('State', {id: user.id, username: user.username, avatar: user.avatar, state: "online"});
@@ -166,7 +162,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         //remove the client form the map
         // console.log("clients after disconnect = ",this.clients);
         // this.logger.log(`Socket disconnected ${socket}`);
-        this.logger.log(`Cliend id:${client.id} disconnected`);
+        // this.logger.log(`Cliend id:${client.id} disconnected`);
         try{
             const userId = this.clients.get(client.id);
             const user = await this.usersService.findById(userId);
@@ -217,9 +213,35 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         console.log("senderObject = ",senderObject);
         const sender = {id: userId, username: senderObject.username, avatar: senderObject.avatar};
         if (friendSocketId){
-            this.server.to(friendSocketId).emit('gameRequest', sender); //broadcast messages
+            this.server.to(friendSocketId).emit(' ', sender); //broadcast messages
         }
 
     }
 
+    @OnEvent('gameState')
+    async handleGameStartEvent(uId: number[], state: string) {
+            //get friend socket
+        try{
+            const userOne = await this.usersService.findById(uId[0]);
+            const userTwo = await this.usersService.findById(uId[1]);
+
+            console.log('id =========================' , uId)
+            console.log(userOne);
+            console.log(userTwo);
+
+            const isSavedone = await this.notifications.saveUserState(uId[0], state);
+            if (isSaved)
+                this.server.emit('State', {id: uId[0], username: userOne.username, avatar: userOne.avatar, state: state});
+            const isSavedtwo = await this.notifications.saveUserState(uId[1], state);
+                if (isSaved)
+                    this.server.emit('State', {id: uId[1], username: userTwo.username, avatar: userTwo.avatar, state: state});
+    
+            }
+        catch(error){
+            // console.log(error);
+            throw new WsException('Error occured while saving the state');
+        }        
+    }
+
 }
+

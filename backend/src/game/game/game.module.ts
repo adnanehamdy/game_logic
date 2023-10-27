@@ -5,9 +5,10 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { UsersModule } from 'src/users/users.module';
 import { UsersService } from 'src/users/users.service';
+import { NotificationsService } from 'src/chat/event.notifications';
 @Module(
 {
-    providers: [GameGateway, gameService, PrismaService, UsersService],
+    providers: [GameGateway, gameService, PrismaService, UsersService, NotificationsService],
     imports : [PrismaModule, UsersModule],
     
 }

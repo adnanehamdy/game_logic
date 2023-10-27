@@ -2,9 +2,11 @@ import Authentication from "../components/Enbording/Authentication";
 import Logo from "../assets/mainLogo.svg"
 import background from "/src/assets/onboarding.png"
 import React from "react";
+import { useProfilecontext } from "../ProfileContext";
 
 export function SignIn() {
-    console.log('sign')
+    // const Profile = useProfilecontext();
+    // console.log(Profile.data);
     return (
         <>
             <div className="mobile-bg h-screen w-screen">

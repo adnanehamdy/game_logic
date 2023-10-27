@@ -13,8 +13,7 @@ export class CustomExceptionsFilter extends BaseExceptionFilter {
 
         // throw new HttpException('42 token invalid', HttpStatus.BAD_REQUEST);
         response.status(HttpStatus.BAD_REQUEST).json({ 
-            statusCode: HttpStatus.BAD_REQUEST,
-            error: "42 token invalid",
+            statusCode: HttpStatus.BAD_REQUEST
         });
     }
 }

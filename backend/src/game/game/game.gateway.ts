@@ -12,6 +12,7 @@ import { OnGatewayDisconnect } from '@nestjs/websockets';
 import { Jwt2faAuthGuard } from 'src/auth/jwt-2fa-auth.guard';
 import {Request} from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { NotificationsService } from 'src/chat/event.notifications';
 // import { JwtService } from "@nestjs/jwt";
 
 @WebSocketGateway(
@@ -29,13 +30,18 @@ export class GameGateway implements OnGatewayDisconnect {
   io: Server;
 
   private readonly logger = new Logger(GameGateway.name)
-  constructor(private readonly gameService: gameService)
+  constructor(private readonly gameService: gameService, private notifications: NotificationsService)
   {}
   
   async handleDisconnect(Client: Socket) {
     this.logger.log(`Cliend id:${Client.id} disconnected`);
     if (this.gameService.gameloaded(Client))
     {
+      const user_id = this.gameService.getPlayerUserId(Client);
+      console.log('user_id li 3titek', user_id[1])
+      console.log('user_id', user_id[0])
+      this.notifications.sendGameEndNotification("online", user_id)
+      // this.notifications.sendGameEndNotification("online", user_id[1]);
       const ids = this.gameService.getPlayersId(Client);
       const gameId = this.gameService.getGameId(Client)
       let result = this.gameService.getGameResult(Client)
@@ -81,23 +87,25 @@ export class GameGateway implements OnGatewayDisconnect {
     id = Client.handshake.query.user_id;
 
     
-    // console.log("connected");
-  //   try {
-  //     console.log(Client.handshake.headers.cookie);
-  //     const Cookie = Client.handshake.headers.cookie.split("=")[1];
-  //     // console.log("Cookie = ",Cookie);
-  //     const payload = await this.jwtService.verifyAsync(Cookie, { secret: process.env.JWT_CONST });
-  //     // Payload = payload;
-  //     // console.log("Payload = ",Payload);
-  //   }catch(error){
-  //     console.log(error)
-  //     // throw new WsException('unauthorized');
-  //     Client.disconnect();
-  //     //throw error
+      // console.log("connected");
+      //   try {
+        //     console.log(Client.handshake.headers.cookie);
+        //     const Cookie = Client.handshake.headers.cookie.split("=")[1];
+        //     // console.log("Cookie = ",Cookie);
+        //     const payload = await this.jwtService.verifyAsync(Cookie, { secret: process.env.JWT_CONST });
+        //     // Payload = payload;
+        //     // console.log("Payload = ",Payload);
+        //   }catch(error){
+          //     console.log(error)
+          //     // throw new WsException('unauthorized');
+          //     Client.disconnect();
+          //     //throw error
   // }
     // console.log("me = "÷+ id);
     if (id)
       user_id = parseInt(id.toString(), 10);
+    
+    this.notifications.sendGameStartNotification("ingame", user_id)
     if (this.gameService.userInGame(user_id) !== -1)
     {
       // console.log("user alrea     dy in game");

@@ -23,10 +23,29 @@ export class NotificationsService {
         this.eventEmitter.emit('gameRequest', userId, friendId);
     }
 
+    sendGameStartNotification(gameState: string, userId: number) {
+        //debug
+        console.log("sendGameStartNotification triggered");
+        //end debug
+        this.eventEmitter.emit('gameState', userId, "ingame");
+
+    }
+
+    sendGameEndNotification(gameState: string, userId: number[]) {
+        //debug
+        console.log("sendGameEndNotification triggered");
+        //end debug
+        console.log('user one ', userId[0]);
+        console.log('two users', userId[1])
+        this.eventEmitter.emit('gameState', userId, "online");
+
+    }
+
+
     //save user state
     async saveUserState(userId: number, state: string):Promise<boolean> {
         //debug
-        console.log("saveUserState triggered");
+        console.log("saveUserState triggered state ====== ",state);
         //end debug
 
         const isSaved  = await this.usersService.saveUserState(userId, state);
@@ -35,13 +54,6 @@ export class NotificationsService {
         }
         return true;
     }
-
-    //add function 
-    // async sendSatteEvent(userId: number, state:string) {
-    //     this.eventEmitter.emit('State', userId, friendId);
-    // }
-
-
 
 }
 

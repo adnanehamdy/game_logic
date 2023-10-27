@@ -2,6 +2,6 @@ import { IsNotEmpty, IsNumber, IsNumberString, IsString , IsIn} from "class-vali
 
 export class StateDto {
     @IsString()
-    @IsIn(['endgame', 'ingame'])
+    @IsIn(['online', 'offline', 'ingame'])
     state: string;
 }
