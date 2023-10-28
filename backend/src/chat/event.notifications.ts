@@ -31,21 +31,19 @@ export class NotificationsService {
 
     }
 
-    sendGameEndNotification(gameState: string, userId: number[]) {
+    sendGameEndNotification(gameState: string, userId: number) {
         //debug
         console.log("sendGameEndNotification triggered");
         //end debug
-        console.log('user one ', userId[0]);
-        console.log('two users', userId[1])
+        console.log(userId);
         this.eventEmitter.emit('gameState', userId, "online");
-
     }
 
 
     //save user state
     async saveUserState(userId: number, state: string):Promise<boolean> {
         //debug
-        console.log("saveUserState triggered state ====== ",state);
+        console.log("saveUserState triggered");
         //end debug
 
         const isSaved  = await this.usersService.saveUserState(userId, state);

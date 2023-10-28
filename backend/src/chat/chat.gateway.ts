@@ -139,7 +139,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
                     //broadcast the user state change to all connected the users
                      this.server.emit('State', {id: user.id, username: user.username, avatar: user.avatar, state: "online"});
                 }                
-                else if (test.state !== "ingame")
+                else (test.state !== "ingame")
                 {
                     const isSaved = await this.notifications.saveUserState(user.id, "online");
                     //broadcast the user state change to all connected the users
@@ -213,30 +213,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         console.log("senderObject = ",senderObject);
         const sender = {id: userId, username: senderObject.username, avatar: senderObject.avatar};
         if (friendSocketId){
-            this.server.to(friendSocketId).emit(' ', sender); //broadcast messages
+            this.server.to(friendSocketId).emit('gameRequest', sender); //broadcast messages
         }
 
     }
 
     @OnEvent('gameState')
-    async handleGameStartEvent(uId: number[], state: string) {
+    async handleGameStartEvent(uId: number, state: string) {
             //get friend socket
         try{
-            const userOne = await this.usersService.findById(uId[0]);
-            const userTwo = await this.usersService.findById(uId[1]);
-
-            console.log('id =========================' , uId)
-            console.log(userOne);
-            console.log(userTwo);
-
-            const isSavedone = await this.notifications.saveUserState(uId[0], state);
-            if (isSavedone)
-                this.server.emit('State', {id: uId[0], username: userOne.username, avatar: userOne.avatar, state: state});
-            const isSavedtwo = await this.notifications.saveUserState(uId[1], state);
-                if (isSavedtwo)
-                    this.server.emit('State', {id: uId[1], username: userTwo.username, avatar: userTwo.avatar, state: state});
-    
-            }
+            const user = await this.usersService.findById(uId);
+            const isSaved = await this.notifications.saveUserState(uId, state);
+            console.log('game state',state, uId);
+            if (isSaved)
+                this.server.emit('State', {id: uId, username: user.username, avatar: user.avatar, state: state});
+        }
         catch(error){
             // console.log(error);
             throw new WsException('Error occured while saving the state');
