@@ -54,7 +54,7 @@ export function Brb() {
     setstrokeColor(newImgs);
   };
 
-    const [data , setData] = useProfilecontext();
+    const profile = useProfilecontext();
 	// const data = useContext(UserContext);
 
   return (
@@ -89,7 +89,7 @@ export function Brb() {
 
           <div className="scrollable-div-ver6">
             <div>
-				{data?.userData?.friends?.map((friend: {avatar: string; username: string} , index: number) => (
+				{profile.data?.userData?.friends?.map((friend: {avatar: string; username: string} , index: number) => (
 					<div key={index}>
 						<BrFriends profile={friend.avatar} name={friend.username} status="/src/assets/live.svg"/>
 					</div>

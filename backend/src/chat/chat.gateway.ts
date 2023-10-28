@@ -230,10 +230,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             console.log(userTwo);
 
             const isSavedone = await this.notifications.saveUserState(uId[0], state);
-            if (isSaved)
+            if (isSavedone)
                 this.server.emit('State', {id: uId[0], username: userOne.username, avatar: userOne.avatar, state: state});
             const isSavedtwo = await this.notifications.saveUserState(uId[1], state);
-                if (isSaved)
+                if (isSavedtwo)
                     this.server.emit('State', {id: uId[1], username: userTwo.username, avatar: userTwo.avatar, state: state});
     
             }

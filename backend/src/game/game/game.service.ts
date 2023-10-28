@@ -663,5 +663,5 @@ getPlayerUserId(socket: Socket) {
     //     return (this.dashBoard.games[gameDuration].game[gp_index[0]].players[0].user_id)
     // else
     //     return (this.dashBoard.games[gameDuration].game[gp_index[0]].players[1].user_id);
-    // }
+    }
 }
