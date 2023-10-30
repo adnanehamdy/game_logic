@@ -20,13 +20,14 @@ export class NotificationsService {
         console.log("sendGameRequestNotification triggered");
         //end debug
 
-        this.eventEmitter.emit('gameRequest', userId, friendId);
+        this.eventEmitter.emit('gameRequest', friendId, userId);
     }
 
     sendGameStartNotification(gameState: string, userId: number) {
         //debug
         console.log("sendGameStartNotification triggered");
         //end debug
+
         this.eventEmitter.emit('gameState', userId, "ingame");
 
     }
@@ -35,7 +36,6 @@ export class NotificationsService {
         //debug
         console.log("sendGameEndNotification triggered");
         //end debug
-        console.log(userId);
         this.eventEmitter.emit('gameState', userId, "online");
     }
 
@@ -45,6 +45,7 @@ export class NotificationsService {
         //debug
         console.log("saveUserState triggered");
         //end debug
+        console.log('user state = ', userId, state);
 
         const isSaved  = await this.usersService.saveUserState(userId, state);
         if (!isSaved){

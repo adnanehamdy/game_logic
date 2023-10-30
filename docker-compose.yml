@@ -21,8 +21,8 @@ services:
     depends_on:
       - postgres
     volumes:
-      - /home/adnane/backend/backend/src:/backend/src
-      - /home/adnane/backend/backend/public:/backend/public
+      - /home/adnane/backend_v0/backend/src:/backend/src
+      - /home/adnane/backend_v0/backend/public:/backend/public
   frontend:
     build: ./frontend/
     container_name: frontend
@@ -31,10 +31,8 @@ services:
     depends_on:
       - backend
     volumes:
-      - /home/adnane/backend/frontend/pong-front/src:/frontend/pong-front/src
-      - /home/adnane/backend/frontend/pong-front/public:/frontend/pong-front/public
+      - /home/adnane/backend_v0/frontend/pong-front/src:/frontend/pong-front/src
+      - /home/adnane/backend_v0/frontend/pong-front/public:/frontend/pong-front/public
 
 volumes:
   postgres:
-
-

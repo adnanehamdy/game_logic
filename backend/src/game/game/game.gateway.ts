@@ -55,7 +55,7 @@ export class GameGateway implements OnGatewayDisconnect {
         this.gameService.setResult(Client);
         result[0] = 'false'
         result[1] = 'You Won';
-        console.log("winner = " + result[1]);
+        // console.log("winner = " + result[1]);
       }
       else if (result[1] === 'false')
       {
@@ -86,6 +86,8 @@ export class GameGateway implements OnGatewayDisconnect {
     let user ;
     try{
       const Cookie = Client.handshake.headers.cookie.split("=")[1];
+
+
       // console.log("Cookie = ",Cookie);
       const payload = await this.jwt.verifyAsync(Cookie, { secret: process.env.JWT_CONST });
 
@@ -118,10 +120,10 @@ export class GameGateway implements OnGatewayDisconnect {
   //   try {
   //     console.log(Client.handshake.headers.cookie);
   //     const Cookie = Client.handshake.headers.cookie.split("=")[1];
-  //     // console.log("Cookie = ",Cookie);
+  //     console.log("Cookie = ",Cookie);
   //     const payload = await this.jwtService.verifyAsync(Cookie, { secret: process.env.JWT_CONST });
   //     // Payload = payload;
-  //     // console.log("Payload = ",Payload);
+  //     console.log("Payload = ",Payload);
   //   }catch(error){
   //     console.log(error)
   //     // throw new WsException('unauthorized');

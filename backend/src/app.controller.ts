@@ -15,6 +15,8 @@ import { join } from 'path';
 import { TfaCodeDto } from './users/dto/tfaCode.dto';
 import { NotificationsService } from './chat/event.notifications';
 import { CustomExceptionsFilter } from './CustomExceptionsFilter';
+import { ProfileStringToDtoPipe } from './string-to-dto.pipe';
+import { UsernameStringToDtoPipe } from './username-validation.pipe';
 
 export const multerConfig = {
   storage: diskStorage({
@@ -226,7 +228,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Get('/profile/:username')
   @UseGuards(Jwt2faAuthGuard)
-  async  getProfile(@Param('username') username: string, @Req() req: Request){
+  async  getProfile(@Param('username', ProfileStringToDtoPipe) username: string, @Req() req: Request){
     let us = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
     let un = username;
     if (username === 'me'){
@@ -280,7 +282,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Get('/check-user/:username')
   @UseGuards(Jwt2faAuthGuard)
-  async loadUser(@Param('username') username: string) {
+  async loadUser(@Param('username', ProfileStringToDtoPipe) username: string) {
     if (username === 'me')
     return {boolean:true};
     const user = await this.usersService.findByUsername(username);
@@ -306,7 +308,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Post('/add-friend/:username')
   @UseGuards(Jwt2faAuthGuard)
-  async addFriend(@Req() req: Request, @Param('username') username: string){
+  async addFriend(@Req() req: Request, @Param('username',UsernameStringToDtoPipe) username: string){
     //check if the user is already a friend or the user is trying to add himself
     let us = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
     if (us.username === username){
@@ -326,9 +328,11 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Post('/accept-friend/:username')
   @UseGuards(Jwt2faAuthGuard)
-  async acceptFriend(@Req() req: Request, @Param('username') username: string){
+  async acceptFriend(@Req() req: Request, @Param('username', UsernameStringToDtoPipe) username: string){
     //check if the friendship exists and the user is the acceptor
     let us = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
+    if (username === us.username)
+      throw new HttpException('You are trying to accept yourself as a friend', HttpStatus.BAD_REQUEST);
     const isAccepted = await this.usersService.acceptFriend(us.id, username);
     if (!isAccepted){
       throw new HttpException('Failed to accept friend', HttpStatus.BAD_REQUEST);
@@ -346,7 +350,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Post('/block-friend/:username')
   @UseGuards(Jwt2faAuthGuard)
-  async blockFriend(@Req() req: Request, @Param('username') username: string){
+  async blockFriend(@Req() req: Request, @Param('username', UsernameStringToDtoPipe) username: string){
     // add the username as blocked by this user in the managament table (private chat)
     //check if the user is trying to block himself
     const us = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
@@ -362,7 +366,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Post('/unblock-friend/:username')
   @UseGuards(Jwt2faAuthGuard)
-  async unblockFriend(@Req() req: Request, @Param('username') username: string){
+  async unblockFriend(@Req() req: Request, @Param('username', UsernameStringToDtoPipe) username: string){
     // add the username as blocked by this user in the managament table (private chat)
     //check if the user is trying to block himself
     const us = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
@@ -413,7 +417,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Post('/add-member/:username')
   @UseGuards(Jwt2faAuthGuard)
-  async AddMember(@Req() req: Request, @Param('username') username: string, @Body() body: RoomSettingsDto){
+  async AddMember(@Req() req: Request, @Param('username', UsernameStringToDtoPipe) username: string, @Body() body: RoomSettingsDto){
     const user = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
     //check if the user is the owner of the room
     const isUserAdmin = await this.usersService.checkIfUserIsOwner(user.id, body);
@@ -428,7 +432,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Post('/set-admin/:username')
   @UseGuards(Jwt2faAuthGuard)
-  async setAdmin(@Req() req: Request, @Param('username') username :string, @Body() body: RoomSettingsDto) {
+  async setAdmin(@Req() req: Request, @Param('username', UsernameStringToDtoPipe) username :string, @Body() body: RoomSettingsDto) {
     //check if the user is the owner of the room
     const user = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
     const isUserAdmin = await this.usersService.checkIfUserIsOwner(user.id, body);
@@ -474,7 +478,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Delete('/kick-member/:username')
   @UseGuards(Jwt2faAuthGuard)
-  async kickMember(@Req() req: Request, @Param('username') username: string, @Body() body: RoomSettingsDto){
+  async kickMember(@Req() req: Request, @Param('username', UsernameStringToDtoPipe) username: string, @Body() body: RoomSettingsDto){
         // check if the user is an admin of the room
         const user = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
         const isAdmin = await this.usersService.checkIfUserIsAdmin(user.id, body);
@@ -489,7 +493,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Post('/mute-member/:username')
   @UseGuards(Jwt2faAuthGuard)
-  async muteMember(@Req() req: Request, @Param('username') username: string, @Body() body: RoomSettingsDto){
+  async muteMember(@Req() req: Request, @Param('username', UsernameStringToDtoPipe) username: string, @Body() body: RoomSettingsDto){
         // check if the user is the owner/admin of the room
         const user = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
         const isAdmin = await this.usersService.checkIfUserIsAdmin(user.id, body);
@@ -504,7 +508,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Post('/ban-member/:username')
   @UseGuards(Jwt2faAuthGuard)
-  async banMember(@Req() req: Request, @Param('username') username: string, @Body() body: RoomSettingsDto){
+  async banMember(@Req() req: Request, @Param('username', UsernameStringToDtoPipe) username: string, @Body() body: RoomSettingsDto){
         //
         // check if the user is owner --he can ban everybody except the himself
         // check if the user is admin --he can ban everybody except the owner and other admins
@@ -524,7 +528,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Post('/allow-member/:username')
   @UseGuards(Jwt2faAuthGuard)
-  async allowMember(@Req() req: Request, @Param('username') username: string, @Body() body: RoomSettingsDto){
+  async allowMember(@Req() req: Request, @Param('username', UsernameStringToDtoPipe) username: string, @Body() body: RoomSettingsDto){
     // check if the user is admin
     const user = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
     const isAmdin = await this.usersService.checkIfUserIsAdmin(user.id, body);
@@ -592,9 +596,11 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Delete('delete-friend/:username')
   @UseGuards(Jwt2faAuthGuard)
-  async deleteFriend(@Req() req: Request, @Param('username') username: string){
+  async deleteFriend(@Req() req: Request, @Param('username', UsernameStringToDtoPipe) username: string){
     const user = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
     const friend= await this.usersService.findByUsername(username);
+    if (!friend)
+      throw new HttpException('Failed to delete friend', HttpStatus.BAD_REQUEST);
     const isDeleted = await this.usersService.deleteFriend(user.id, friend.id);
     if (!isDeleted)
       throw new HttpException('Failed to delete friend', HttpStatus.BAD_REQUEST);
@@ -614,7 +620,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Delete('delete-request/:username')
   @UseGuards(Jwt2faAuthGuard)
-  async deleteRequest(@Req() req: Request, @Param('username') username: string){
+  async deleteRequest(@Req() req: Request, @Param('username', UsernameStringToDtoPipe) username: string){
       //check if the user is the acceptor of the request
       const user = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
       const isDeleted = await this.usersService.deleteRequest(user.id, username);
@@ -625,7 +631,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Post('invite-to-game/:username')
   @UseGuards(Jwt2faAuthGuard)
-  async inviteToGame(@Req() req: Request, @Param('username') username: string){
+  async inviteToGame(@Req() req: Request, @Param('username', UsernameStringToDtoPipe) username: string){
     const user = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
     const friend = await this.usersService.findByUsername(username);
     if (!friend)
@@ -677,7 +683,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Post('get-member-role/:username')
   @UseGuards(Jwt2faAuthGuard)
-  async getMemberRole(@Req() req: Request, @Param('username') username: string, @Body() body: RoomSettingsDto){
+  async getMemberRole(@Req() req: Request, @Param('username', UsernameStringToDtoPipe) username: string, @Body() body: RoomSettingsDto){
     const user = await this.usersService.findByUsername(username);
     const room = await this.usersService.findRoomByName(body.name);
     const role = await this.usersService.getMyRole(user.id, room.id);

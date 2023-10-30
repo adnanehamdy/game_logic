@@ -283,7 +283,7 @@ async  checkAchievements(socket : Socket, achieveName : string, userId : number)
 
     let current = await this.prisma.achievements.findMany({where: {user_id: userId}});
     // let i = 0;
-    // console.log("achievement");
+    console.log("achievement");
     console.log('check');
     for (let i = 0; i <= current.length - 1; i++)
     {
@@ -563,12 +563,12 @@ this.dashBoard.games[gameDuration].game[gp_index[0]].intervalId = setInterval(()
         if (!this.dashBoard.games[gameDuration] || !this.dashBoard.games[gameDuration].game[gp_index[0]] 
             || !this.dashBoard.games[gameDuration].game[gp_index[0]])
             return;
-        // console.log('game removed');
+        console.log('game removed');
         if (this.dashBoard.games[gameDuration].game[gp_index[0]].players[1]) {
-            // console.log("before = " + this.dashBoard.allPlayersIDs)
+            console.log("before = " + this.dashBoard.allPlayersIDs)
             this.dashBoard.allPlayersIDs[gameDuration].PlayersIDs = this.dashBoard.allPlayersIDs[gameDuration].PlayersIDs
                 .filter(playerId => playerId !== this.dashBoard.games[gameDuration].game[gp_index[0]].players[1].socketId);
-            // console.log("after" + this.dashBoard.allPlayersIDs)
+            console.log("after" + this.dashBoard.allPlayersIDs)
             this.dashBoard.playersNumber[gameDuration].Number -= 1
         }
         if (this.dashBoard.games[gameDuration].game[gp_index[0]].players[0]) {
@@ -588,7 +588,7 @@ this.dashBoard.games[gameDuration].game[gp_index[0]].intervalId = setInterval(()
         let ball_coordonation: number[] = [];
         let gp_index = this.matchPlayerFromSocketId(socket);
         let gameDuration = this.getGameDuration(socket);
-        // console.log("players number = " + this.dashBoard.playersNumber);
+        console.log("players number = " + this.dashBoard.playersNumber);
         if (this.IsDataValid(gameDuration, gp_index[0]))
         return;
         let leftPaddle = this.dashBoard.games[gameDuration].game[gp_index[0]].players[0].paddle;
@@ -603,11 +603,11 @@ this.dashBoard.games[gameDuration].game[gp_index[0]].intervalId = setInterval(()
         let gameDuration = this.getGameDuration(socket);
 
         let players_score: number[] = [];
-        // console.log(gameDuration);
+        console.log(gameDuration);
         let game_index = this.matchPlayerFromSocketId(socket)
         if (this.IsDataValid(gameDuration, game_index[0]))
         return;
-        // console.log("game duration = " + gameDuration);
+        console.log("game duration = " + gameDuration);
         players_score.push(this.dashBoard.games[gameDuration].game[game_index[0]].ball.score[0]);
         players_score.push(this.dashBoard.games[gameDuration].game[game_index[0]].ball.score[1]);
         return (players_score);
@@ -615,7 +615,7 @@ this.dashBoard.games[gameDuration].game[gp_index[0]].intervalId = setInterval(()
 
     IsDataValid(gameDuration :number,  index : number)
     {
-        // console.log(this.dashBoard.games[gameDuration])
+        console.log(this.dashBoard.games[gameDuration])
         if (!this.dashBoard.games[gameDuration] ||
             ! this.dashBoard.games[gameDuration].game[index] ||
             !this.dashBoard.games[gameDuration].game[index].players[0] ||

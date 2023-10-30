@@ -77,9 +77,9 @@ interface friendsList{
 				<ChatSocketProvider>
 				<ProfileProvider>
 				<StateProvider>
-
+					
+					<NavBar/>
 				  <BrowserRouter>
-						<NavBar/>
 					<Routes>
 					  {/* Your logged-in routes go here */}
 					  <Route path={`/Profile/:username`} element={<CheckProfile />} />
