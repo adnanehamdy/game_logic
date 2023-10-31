@@ -215,7 +215,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
           //ectract the filename from the path
           let newPath = path.split('/').pop();
           //debug
-          console.log(newPath);
+          // console.log(newPath);
           //end debug
           fs.unlinkSync(join('/backend/public','avatars', newPath));
       }

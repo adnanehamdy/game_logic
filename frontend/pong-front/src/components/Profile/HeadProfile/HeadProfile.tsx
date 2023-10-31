@@ -11,6 +11,7 @@ import axios from "axios"
 import { useEffect, useContext } from "react"
 import React from "react"
 import { MbGameMode } from "../MbGameMode"
+import { useDataContext } from "../States/stateContext"
 
 interface Props {
 	profile: string,
@@ -21,6 +22,7 @@ interface Props {
 
 import { MyContext, UserContext } from "../../../pages/Profile"
 import { Link, useNavigate } from "react-router-dom"
+import { Playing } from "../../Home/Friends/status/Playing"
 
 export function HeadProfile ( {profile, name, friendNum, me}: Props ) {
 	
@@ -28,8 +30,17 @@ export function HeadProfile ( {profile, name, friendNum, me}: Props ) {
 	const Mydata = useContext(MyContext);
 	const [gameMode, setGameMode] = useState(false);
 	const [clicked, setClick] = useState(false);
+	const state = useDataContext();
 	const [search, Setsearch] = useState(false);
-
+	let Mystate = undefined;
+	console.log('global state = ', state.data);
+	if (state.data)
+	{
+		Mystate = state.data.filter((item) => (item.username === name))
+		if (Mystate[0])
+		console.log('Mystate = ', Mystate[0].state)
+		console.log('Mystate', name);	
+	} 
 	const handleMode = () => {
 		setGameMode(!gameMode);
 	}
@@ -97,7 +108,9 @@ export function HeadProfile ( {profile, name, friendNum, me}: Props ) {
 					<div className="flex relative items-center justify-center border border-[3px] border-[#0049C6] rounded-full w-[75px]  h-[75px] sm:w-[85px] sm:h-[85px]">
 						<img src={profile} className="absolute bbc rounded-full w-[57px] h-[57px] sm:w-[67px] sm:h-[67px]"/>
 							<div className="absolute right-0 top-0">
-								<Enline/>
+								{Mystate && Mystate[0] && Mystate[0].state === 'online' && <Enline/>}
+								{Mystate &&  Mystate[0] && Mystate[0].state === 'ingame' && <Playing/>}
+								{/* {Mystate.state === ''} */}
 							</div>
 					</div>
 					<div className="flex flex-col justify-center gap-4">
@@ -158,7 +171,7 @@ export function HeadProfile ( {profile, name, friendNum, me}: Props ) {
 				</div>
 			</div>
 		</div>
-		{ gameMode && 
+		{ gameMode && Mystate && Mystate[0] && (Mystate[0].state !== 'ingame') && 
 			<div>
 				<GameMode hide={()=> setGameMode(!gameMode)}/>
 				<MbGameMode hide={()=> setGameMode(!gameMode)}/>

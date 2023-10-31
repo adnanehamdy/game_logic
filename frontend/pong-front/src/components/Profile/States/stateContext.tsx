@@ -2,8 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import axios from 'axios';
 import { ChatSocketContext } from '../../Chat/contexts/chatContext';
 // import { Avatar } from '../../Home/NavBar/Avatar';
-
-
+import { useProfilecontext } from '../../../ProfileContext';
 interface friendsList{
   id:  '',
   username: '',
@@ -60,6 +59,24 @@ export const StateProvider: React.FC<StateProviderProps> = ({ children }: StateP
     // chatContext?.emit('join-room', {roomId});
     fetchData();
   }, []);
+
+  const profile = useProfilecontext()
+	const chatContext = useContext(ChatSocketContext);
+	let state : DataContextProps | undefined;
+		state = useDataContext();
+    useEffect(() =>{
+	    chatContext?.on('State', (friendState : friendsList)=>
+      {
+      console.log('on state -------', friendState);
+      // state?.setData((old) =>
+      // old.map((item : friendsList) => (item.id === friendState.id ? { ...item, ...friendState } : item))
+	  })
+      // return (chatContext?.off('State'))
+      }, [chatContext ])
+        // return () =>{
+          // chatContext?.off('State');}
+  // }, [])
+  console.log('user_data li f navbar', profile?.data?.user_data.avatar);
 
     console.log('----------------------------------------------------------------new data arived', data);
   return (

@@ -14,12 +14,12 @@ const Addmember = async ( name: string, roomName: string ) => {
 		name: roomName,
 		type: 'private',
 	};
-	console.log(jsonData.name + " " + jsonData.type);
+	// console.log(jsonData.name + " " + jsonData.type);
 	try {
 		const response = await axios.post(`http://localhost:3000/add-member/${name}`, jsonData,
 		{ withCredentials: true }
 		).then (() => {
-			console.log("add me to room");
+			// console.log("add me to room");
 		})
 		
 	} catch (error) {

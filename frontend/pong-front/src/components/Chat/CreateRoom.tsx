@@ -23,11 +23,11 @@ const handleCreateRoom = async ( {roomName, RoomType, pass}: Data ) => {
 	try {
 		const response = await axios.post("http://localhost:3000/create-room", jsonData, {withCredentials: true})
 		.then((response) => {
-			console.log(response.data);
+			// console.log(response.data);
 		})
 	}
 	catch (error) {
-		console.log(error);
+		// console.log(error);
 	}
 }
 

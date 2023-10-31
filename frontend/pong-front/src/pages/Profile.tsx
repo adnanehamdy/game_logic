@@ -9,6 +9,7 @@ import React, { useState, useEffect, createContext } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { useProfilecontext } from "../ProfileContext";
+import { useDataContext } from "../components/Profile/States/stateContext";
 // import isEqual from 'lodash/isEqual';
 
 interface MyUserData {
@@ -43,7 +44,7 @@ export const UserContext = createContext<{
   } | undefined>(undefined);
   
   export function Profile() {
-    console.log('mchit l profile')
+    // console.log('mchit l profile')
   const profile = useProfilecontext()
 	let { username } = useParams();
 
@@ -91,12 +92,12 @@ export const UserContext = createContext<{
         const response =  axios.get(`http://${import.meta.env.VITE_API_URL}/profile/${username}`, { withCredentials: true })
         .then ((response) => {
 			const newData = response.data;
-      console.log('in Profile component', username);
+      // console.log('in Profile component', username);
 			if (!isEqual(newData, userData)) {
-				console.log("here");
+				// console.log("here");
 				setUserData(newData);
 			}
-			console.log(response.data);
+			// console.log(response.data);
 		})
       } catch (error) {
         console.error("Error fetching user data:");
@@ -134,7 +135,7 @@ export const UserContext = createContext<{
 // 			if (!isEqual(newData, MyuserData)) {
 // 				setMyUserData(newData);
 // 			}
-// 			console.log(response.data);
+// 			// console.log(response.data);
 // 		})
 // 	} catch (error) {
 // 		console.error("Error fetching user data:");

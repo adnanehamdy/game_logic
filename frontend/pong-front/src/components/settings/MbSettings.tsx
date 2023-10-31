@@ -21,7 +21,7 @@ export function MbSettings ( {hide}: Props ) {
 	  
 		try {
 		  const response =  axios.get(`http://${import.meta.env.VITE_API_URL}/profile/me`, { withCredentials: true }).then ( function(response) {
-			  console.log(response.data);
+			  // console.log(response.data);
 		  } )
 		} catch (error) {
 		  console.error("Error fetching user data:");
@@ -71,16 +71,16 @@ export function MbSettings ( {hide}: Props ) {
 			})
 		  }
 		  catch(error) {
-			  console.log("Post profile faild", error);
+			  // console.log("Post profile faild", error);
 		  }
 	  }
 
 
   const handleName = async () => {
 	  try {
-		  console.log(formData.username);
+		  // console.log(formData.username);
 		  const response = await axios.post(`http://${import.meta.env.VITE_API_URL}/set-username`, formData, {withCredentials: true}).then (function (response) {
-			  console.log(response.data);
+			  // console.log(response.data);
 			  data?.setMyUserData((prevUserData) => ({
 				  ...prevUserData,
 				  user_data: {
@@ -91,7 +91,7 @@ export function MbSettings ( {hide}: Props ) {
 		  });
 	  }
 	  catch(error) {
-		  console.log("Post profile faild", error);
+		  // console.log("Post profile faild", error);
 	  }
   }
 	

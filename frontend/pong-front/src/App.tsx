@@ -74,16 +74,10 @@ interface friendsList{
 		return (
 			<>
 			  {(islogin && Profile_data) ? (
-				<ChatSocketProvider>
-				<ProfileProvider>
-				<StateProvider>
-					
-					<NavBar/>
 				  <BrowserRouter>
+						<NavBar/>
 					<Routes>
-					  {/* Your logged-in routes go here */}
 					  <Route path={`/Profile/:username`} element={<CheckProfile />} />
-					  {/* <Route path={`/set_username`} element={<CheckProfile/>} /> */}
 					  <Route path="/Game" element={<GameSetup />} />
 					  <Route path="/2fa" element={<TwofaAuth />} />
 					  <Route path="/Chat" element={<Chat />} />
@@ -91,13 +85,8 @@ interface friendsList{
 					  <Route path="/error" element={<ForOFor />} />
 					  <Route path="/" element={<Profile />} />
 					  <Route path="*" element={<ForOFor />} />
-				{/* </NavBar> */}
-					  {/* <Route path="chat/*" element={<ForOFor/>}/> */}
 					</Routes>
 				  </BrowserRouter>
-				</StateProvider>
-				</ProfileProvider>
-				</ChatSocketProvider>
 			  ) : (
 				// Your not-logged-in routes go here
 				<BrowserRouter>

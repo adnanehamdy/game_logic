@@ -81,7 +81,7 @@ interface MyUserData {
           const response = await axios.get(`http://${import.meta.env.VITE_API_URL}/profile/me`, { withCredentials: true });
   
           // const result = await response.json();
-          console.log('data = ', response.data);
+          // // console.log('data = ', response.data);
           let Mydata : MyUserData;
           Mydata = response.data;
           setData(Mydata);
@@ -93,7 +93,7 @@ interface MyUserData {
       fetchData();
     }, []);
   
-      console.log('----------------------------------------------------------------new data arived', data);
+      // // console.log('----------------------------------------------------------------new data arived', data);
     return (
       <ProfileContext.Provider value={{ data, setData }}>
         {children}

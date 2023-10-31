@@ -31,7 +31,7 @@ export function ChatConv({ room, profile }: ChatConvProps) {
 	const [msg, setMsg] = useState([]);
 	const { id } = useParams();
 
-	console.log('ChatConv', id, 'room', room, 'profile', profile);
+	// // // console.log('ChatConv', id, 'room', room, 'profile', profile);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -59,7 +59,7 @@ export function ChatConv({ room, profile }: ChatConvProps) {
 		fetchData();
 	}, [id]);
 
-	console.log('room members', msg);
+	// // // console.log('room members', msg);
 
 	return (
 		<>

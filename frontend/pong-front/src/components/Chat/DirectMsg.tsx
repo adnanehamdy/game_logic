@@ -46,18 +46,18 @@ export function DirectMsg({ profile }: MbChatProps) {
   // const {RoomId} = useParams();
 
   // const Data = useContext(UserContext);
-  // console.log('context data-------------------------------------->',Data.user_data);
+  // // console.log('context data-------------------------------------->',Data.user_data);
   const [Rooms, setRooms] = useState([]);
   const [OtherRooms, setOtherRooms] = useState([]);
   const [Myid, setMyId] = useState('');
-  // console.log('in DirectMsg', profile.user_data);
+  // // console.log('in DirectMsg', profile.user_data);
   const { id } = useParams();
   // let Id;
   // if (id)
   //   Id = parseInt(id.toString());
   // else
   //   Id = undefined;
-  console.log(id);
+  // console.log(id);
 
 
   const updateIsClicked = (index: number) => {
@@ -94,7 +94,7 @@ export function DirectMsg({ profile }: MbChatProps) {
           { withCredentials: true }
         );
         setOtherRooms(response.data);
-		// console.log(OtherRooms.)
+		// // console.log(OtherRooms.)
 	} catch (error) {
 		console.error("Error fetching data:", error);
 	}

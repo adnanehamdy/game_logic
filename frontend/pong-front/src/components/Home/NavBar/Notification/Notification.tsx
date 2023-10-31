@@ -18,14 +18,14 @@ export function Notification({ clicked, msgnum }: Props) {
     const profile = useProfilecontext();
     React.useEffect(() => {
         //   if (chatContext?.connected)
-          console.log('connected >>>>>>>>>>>>>>>>>>	')
-        chatContext?.on('State', (friendState: friendsList) => {
-            console.log('on state --------------------------------------<>')
-            if (state)
-                state?.setData((old) =>
-                    old.map((item: friendsList) => (item.id === friendState.id ? { ...item, ...friendState } : item))
-                )
-        })
+        //   console.log('connected >>>>>>>>>>>>>>>>>>	')
+        // chatContext?.on('State', (friendState: friendsList) => {
+        //     console.log('on state --------------------------------------<>')
+        //     if (state)
+        //         state?.setData((old) =>
+        //             old.map((item: friendsList) => (item.id === friendState.id ? { ...item, ...friendState } : item))
+        //         )
+        // })
 
             chatContext?.on('gameRequest', (notif: {id: number, avatar: string; username: string}) => {
                 console.log('on gameRequest --------------------------------------<>')
@@ -46,12 +46,11 @@ export function Notification({ clicked, msgnum }: Props) {
                   }));
             })
           return () =>{
-            console.log('event cleaned ******************************************')
-        chatContext?.off('State');
+        // chatContext?.off('State');
         chatContext?.off('friendRequest')
         chatContext?.off('gameRequest')}
-    }, [])
-    // }, [chatContext, profile?.data?.user_data.avatar, state, profile?.setData])
+          
+    }, [chatContext, profile?.data?.user_data.avatar, state, profile?.setData])
     return (
         <>
             <button onClick={clicked}>
