@@ -202,7 +202,7 @@ export class gameService {
     socket.emit('Score', this.getScore(socket));
     // score[0] = 5;
 
-    if (score[0] === 5 || score[1] === 5)
+    if (score && score[1] && score[0] && score[0] === 5 || score[1] === 5)
     {
         if (score[0] > score[1])
         {
@@ -598,6 +598,19 @@ this.dashBoard.games[gameDuration].game[gp_index[0]].intervalId = setInterval(()
         ball_coordonation[1] = this.dashBoard.games[gameDuration].game[gp_index[0]].ball.y
 
         return (ball_coordonation);
+    }
+
+    getUsersIds(socket : Socket)
+    {
+        let gp_index = this.matchPlayerFromSocketId(socket)
+        let gameDuration = this.getGameDuration(socket);
+        // console.log("players number = " + this.dashBoard.playersNumber);
+        if (this.IsDataValid(gameDuration, gp_index[0]))
+            return ;
+        let users_ids : number[] = [];
+        users_ids[0] = this.dashBoard.games[gameDuration].game[gp_index[0]].players[0].user_id
+        users_ids[1] = this.dashBoard.games[gameDuration].game[gp_index[0]].players[1].user_id
+        return (users_ids);
     }
     getScore(socket: Socket) {
         let gameDuration = this.getGameDuration(socket);

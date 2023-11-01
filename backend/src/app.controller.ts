@@ -213,7 +213,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
           //remove old avatar
           //update path before romeving it
           //ectract the filename from the path
-          let newPath = path.split('/').pop();
+          let newPath = path.split('/').pop()
           //debug
           // console.log(newPath);
           //end debug
