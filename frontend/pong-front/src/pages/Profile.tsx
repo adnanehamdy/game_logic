@@ -152,6 +152,7 @@ export const UserContext = createContext<{
       <div>
         {/* <NavBar avatar={MyuserData?.user_data?.avatar} username={MyuserData?.user_data?.username}/> */}
         <HeadProfile
+        state={userData?.user_data?.state}
           profile={userData?.user_data?.avatar}
           name={userData?.user_data?.username}
           friendNum={userData?.friends?.length.toString()}

@@ -9,6 +9,7 @@ import { useProfilecontext } from './ProfileContext.tsx';
 import { useContext , useState} from 'react';
 // import { ProfileProvider,useProfilecontext } from "./ProfileContext"
 import { StateProvider, useDataContext, } from "./components/Profile/States/stateContext"
+import { NavBar } from './components/Home/NavBar/NavBar.tsx';
 // import { States } from './components/Profile/States/States.tsx';
 // import { ChatSocketContext, ChatSocketProvider } from "./components/Chat/contexts/chatContext"
 // import { ChatSocketContext, ChatSocketProvider } from "./components/Chat/contexts/chatContext"
@@ -77,14 +78,14 @@ const Root: React.FC = () => {
 
 		// console.log(islogin);
     return (
-      <ProfileProvider>
         <ChatSocketProvider>
+      <ProfileProvider>
 
           {/* <StateProvider> */}
             <Loading/>
           {/* </StateProvider> */}
-        </ChatSocketProvider>
       </ProfileProvider>
+        </ChatSocketProvider>
     );
   };
   

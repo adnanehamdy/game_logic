@@ -40,14 +40,14 @@ export function Game () {
 
 	return (
 		<>
-			<NavBar/>
+			{/* <NavBar/> */}
 			<div className="pl-8">
 			<div className="flex flex-col items-center lg:pl-28 pr-10 pl-10">
 			<div className="flex lg:flex-row flex-col justify-between w-full items-center pt-32">
 				<Enemy profile="/src/assets/ahamdy.jpg" name="Adnan hamdy" friendNum="1337"/>
 				<Me profile="/src/assets/hkhalil.jpg" name="hssan khalil" friendNum="0"/>
 			</div>
-				<GameApp />
+				{/* <GameApp /> */}
 			<div className="pt-32 lg:pl-28 pl-10 pb-10">
 				{/* <GameTitle/> */}
 			</div>

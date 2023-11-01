@@ -17,15 +17,34 @@ export function Notification({ clicked, msgnum }: Props) {
     const state = useDataContext();
     const profile = useProfilecontext();
     React.useEffect(() => {
-        //   if (chatContext?.connected)
-        //   console.log('connected >>>>>>>>>>>>>>>>>>	')
-        // chatContext?.on('State', (friendState: friendsList) => {
-        //     console.log('on state --------------------------------------<>')
-        //     if (state)
-        //         state?.setData((old) =>
-        //             old.map((item: friendsList) => (item.id === friendState.id ? { ...item, ...friendState } : item))
-        //         )
-        // })
+        // const profile = useProfilecontext()
+        // const chatContext = useContext(ChatSocketContext);
+        // let state : DataContextProps | undefined;
+            // state = useDataContext();
+        // // useEffect(() =>{
+        //     chatContext?.on('State', (friendState : friendsList)=>
+        //   {
+        //   console.log('on state -------', friendState);
+    
+    
+        //   // start
+        //   // profile.setData((prevData) => {
+        //   //   if (prevData) {
+        //   //     return {
+        //   //       ...prevData,
+        //   //       user_data: {
+        //   //         ...prevData.user_data,
+        //   //         state: friendState.state,
+        //   //       },
+        //   //     };
+        //       ///end 
+        //     //   console.log("state changed", data)
+        //     //   if (data)
+        //     state.setData((old) =>
+        //     old.map((item : friendsList) => (item.id === friendState.id ? { ...item, ...friendState } : item)))
+        // //   console.log('data mn bead', data);
+        //   });
+        // //   }, [chatContext])
 
             chatContext?.on('gameRequest', (notif: {id: number, avatar: string; username: string}) => {
                 console.log('on gameRequest --------------------------------------<>')
@@ -51,6 +70,9 @@ export function Notification({ clicked, msgnum }: Props) {
         chatContext?.off('gameRequest')}
           
     }, [chatContext, profile?.data?.user_data.avatar, state, profile?.setData])
+
+
+
     return (
         <>
             <button onClick={clicked}>

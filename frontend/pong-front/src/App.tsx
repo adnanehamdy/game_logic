@@ -16,6 +16,7 @@
 	import { StateProvider, useDataContext, } from "./components/Profile/States/stateContext"
 import { ChatSocketContext, ChatSocketProvider } from "./components/Chat/contexts/chatContext"
 import { NavBar } from "./components/Home/NavBar/NavBar"
+import { GameRoute } from "./components/Game/GameRoute"
 // import { ProfileProvider } from "./ProfileContext"
 
 
@@ -38,6 +39,10 @@ interface friendsList{
 		const [islogin, setIslogin] = useState(false);
 		const [isLoading, setIsLoading] = useState(true);
 		let state : DataContextProps | undefined;
+		// const MemoizedGameRoute = React.memo(GameRoute);
+
+// ...
+
 		state = useDataContext();
 		// const chatContext = useContext(ChatSocketContext);
 		const Profile_data = useProfilecontext();
@@ -66,19 +71,23 @@ interface friendsList{
 	
 			
 		if (isLoading) {
-		return <div>Loading...</div>;
+		return <div>Loading....</div>;
 		}
-		console.log(islogin);
+		// console.log(islogin);
 		
 
 		return (
 			<>
 			  {(islogin && Profile_data) ? (
-				  <BrowserRouter>
-						<NavBar/>
+				<>
+				{/* <BrowserRouter> */}
+				{/* </BrowserRouter> */}
+
+				<BrowserRouter>
+				  <NavBar/>
 					<Routes>
 					  <Route path={`/Profile/:username`} element={<CheckProfile />} />
-					  <Route path="/Game" element={<GameSetup />} />
+				  <Route path="/Game" element={<GameSetup />} />
 					  <Route path="/2fa" element={<TwofaAuth />} />
 					  <Route path="/Chat" element={<Chat />} />
 					  <Route path="/Chat/:id" element={<Chat />} />
@@ -87,6 +96,7 @@ interface friendsList{
 					  <Route path="*" element={<ForOFor />} />
 					</Routes>
 				  </BrowserRouter>
+				  </>
 			  ) : (
 				// Your not-logged-in routes go here
 				<BrowserRouter>

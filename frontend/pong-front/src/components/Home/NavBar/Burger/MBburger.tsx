@@ -24,7 +24,7 @@ interface friendsList{
 	state:    '',
   }
 
-export function  MBburger (  ) {
+export function  MBburger ( state: friendsList[] ) {
 
 	const data = useContext(MyContext);
 	// const state = useDataContext();
@@ -32,7 +32,8 @@ export function  MBburger (  ) {
 	// const profile = useProfilecontext()
 
 	// const chatContext = useContext(ChatSocketContext);
-	const state = useDataContext();
+	// const state = useDataContext();
+	// console.log(state);
 	const profile = useProfilecontext();
 	// useEffect(() => 
 	// {
@@ -193,7 +194,7 @@ export function  MBburger (  ) {
 				<MbSettings hide={() => SetSettings(false)}/>
 			</div>
 		}
-		{game  && (state?.data[state?.data.length - 1].state && state?.data[state?.data.length - 1].state !== isIngame) &&
+		{game &&
 					<div>
 						<GameMode hide={() => Setgame(!game)}/>
 						<MbGameMode  hide={() => Setgame(!game)}/>

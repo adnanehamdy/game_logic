@@ -3,7 +3,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
-// import { ChatSocketContext } from '../../Chat/contexts/chatContext';
+import { ChatSocketContext } from './components/Chat/contexts/chatContext';
 // import { Avatar } from '../../Home/NavBar/Avatar';
 // const [MyuserData, setMyUserData] = useState<MyUserData>({
 //     user_data: {
@@ -71,7 +71,7 @@ interface MyUserData {
   
   export const ProfileProvider: React.FC<StateProviderProps> = ({ children }: StateProviderProps) => {
     const [data, setData] = useState<any>(null);
-    // const chatContext = useContext(ChatSocketContext);
+    const chatContext = useContext(ChatSocketContext);
   
     useEffect(() => {
       // Fetch data when the component mounts
@@ -92,6 +92,9 @@ interface MyUserData {
       };
       fetchData();
     }, []);
+
+
+    // useEffect(() =>{
   
       // // console.log('----------------------------------------------------------------new data arived', data);
     return (

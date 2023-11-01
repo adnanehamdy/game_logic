@@ -29,7 +29,7 @@ function GameApp() {
   let custom_msg: string;
   const [RenderCanvas, setRenderCanvas] = useState(true);
   const [gameState, setGameState] = useState('pending')
-  // console.log("Gameapp");
+  // console.log("Gameapp");GameRoute
   // const gameMode = 'simple';
   // socket.emit('game Mode', gameMode);
   // console.log('GameApp loaded');
