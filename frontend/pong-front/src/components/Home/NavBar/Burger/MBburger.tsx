@@ -16,17 +16,84 @@ import { MbSettings } from "../../../settings/MbSettings"
 import { useDataContext } from "../../../Profile/States/stateContext"
 import { ChatSocketContext } from "../../../Chat/contexts/chatContext"
 import { useProfilecontext } from "../../../../ProfileContext"
+import { OffLine } from "../../Friends/status/OffLine"
+import { Playing } from "../../Friends/status/Playing"
+import { Enline } from "../../Friends/status/Enline"
 
-interface friendsList{
-	id:  '',
-	username: '',
-	avatar:    '',
-	state:    '',
+
+
+interface MBburgerProps {
+	state: friendsList[];
   }
+  
+  interface friendsList{
+	  id:  '',
+	  username: '',
+	  avatar:    '',
+	  state:    '',
+	}
+	
+	export function MBburger() {
 
-export function  MBburger ( state: friendsList[] ) {
+	// const data = useContext(MyContext);
 
-	const data = useContext(MyContext);
+	const [state, setState] = useState<any>(null);
+    const chatContext = useContext(ChatSocketContext);
+
+    useEffect(() => {
+      // Fetch data when the component mounts
+      const fetchData = async () => {
+        try {
+          // Replace the URL with your API endpoint
+          const response = await axios.get(`http://${import.meta.env.VITE_API_URL}/profile/me`, { withCredentials: true });
+
+          // const result = await response.json();
+          console.log('data = ', response.data.friends);
+          let Mydata : friendsList;
+          Mydata = {id: response.data.user_data.id, username: response.data.user_data.username, avatar: response.data.user_data.avatar, state : response.data.user_data.state}
+          response.data.friends = [...response.data.friends, Mydata];
+          setState(response.data.friends);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+        // 
+        console.log('initial data', state);
+      };
+      // chatContext?.emit('join-room', {roomId});
+      fetchData();
+    }, []);
+
+    useEffect(() => {
+    chatContext?.on('State', (friendState : friendsList)=>
+        {
+        console.log('on state -------', friendState);
+
+
+        // start
+            ///end 
+            // console.log("DATA MN 9BL", data)
+            console.log('value', friendState)
+            console.log('id', friendState);
+            // if (data)
+        setState((old) => (old.map((item : friendsList) => (item.id === friendState.id ? { ...item, ...friendState } : item))))
+        // }})
+        // return null;
+      });
+      return (() =>
+      {
+          (chatContext?.off('State'))
+        })
+        }, [])
+	let name = 'achraf';
+	// console.log('all states ', state)
+	// useEffect(()=>
+	// {
+
+	// }, [state])
+	// console.log('value', state?.state?.filter((item) => name === item.username))
+	// const stateValue = filteredStates?.[0]?.state;
+	// console.log('value' , stateValue);
+
 	// const state = useDataContext();
 	// const chatContext = useContext(ChatSocketContext);
 	// const profile = useProfilecontext()
@@ -34,7 +101,9 @@ export function  MBburger ( state: friendsList[] ) {
 	// const chatContext = useContext(ChatSocketContext);
 	// const state = useDataContext();
 	// console.log(state);
+	// let name = 'achraf';
 	const profile = useProfilecontext();
+	// console.log('state value = ', state?.state?.find((item) => name === item.username)?.state)
 	// useEffect(() => 
 	// {
 	//   if (chatContext?.connected)
@@ -147,7 +216,7 @@ export function  MBburger ( state: friendsList[] ) {
 					<div>
 						{profile?.data?.friends?.map((friend: { avatar: string; username: string }, index: number) => (
 							<div key={index}>
-								<Avatar avatar={friend.avatar} name={friend.username}/>
+								<Avatar avatar={friend.avatar} name={friend.username} state={state?.find((item) => friend.username === item.username)?.state }/>
 							</div>
 						))
 						}

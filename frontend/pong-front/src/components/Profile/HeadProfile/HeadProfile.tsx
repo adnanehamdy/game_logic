@@ -14,6 +14,7 @@ import { MbGameMode } from "../MbGameMode"
 import { useDataContext } from "../States/stateContext"
 
 interface Props {
+	state : string,
 	profile: string,
 	name: string,
 	friendNum: string,
@@ -24,6 +25,7 @@ import { MyContext, UserContext } from "../../../pages/Profile"
 import { Link, useNavigate } from "react-router-dom"
 import { Playing } from "../../Home/Friends/status/Playing"
 import { ChatSocketContext } from "../../Chat/contexts/chatContext"
+import { OffLine } from "../../Home/Friends/status/OffLine"
 
 export function HeadProfile({ state, profile, name, friendNum, me }: Props) {
 
@@ -38,8 +40,11 @@ export function HeadProfile({ state, profile, name, friendNum, me }: Props) {
 	useEffect(() => {
 		chatContext?.on('State', (friendState: friendsList) => {
 		
-			if (friendState.username == name)
+			if (friendState.username == name && friendState.state)
+			{
 				setState(friendState.state);
+				console.log('state changed')
+			}
 			console.log('new state in profile', friendState.state);
 			return (() => {
 				(chatContext?.off('State'))
@@ -107,6 +112,8 @@ export function HeadProfile({ state, profile, name, friendNum, me }: Props) {
 				handleFriend()
 		}
 	}
+	console.log('head profile avatar = ', profile);
+	console.log('new state in profile', Mystate);
 	return (
 		<>
 			<div className="pt-32 pl-10 pr-10 lg:pl-36 lg:pr-10">
@@ -116,11 +123,9 @@ export function HeadProfile({ state, profile, name, friendNum, me }: Props) {
 							<div className="flex relative items-center justify-center border border-[3px] border-[#0049C6] rounded-full w-[75px]  h-[75px] sm:w-[85px] sm:h-[85px]">
 								<img src={profile} className="absolute bbc rounded-full w-[57px] h-[57px] sm:w-[67px] sm:h-[67px]" />
 								<div className="absolute right-0 top-0">
-									{/* {state.data && state.data.filter((item) => (item.username === name)).state === 'online' && <Enline/>}
-								{state.data && state.data.filter((item) => (item.username === name)).state === 'ingame' && <Playing/>} */}
-									<Enline />
-									{/* <Playing/> */}
-									{/* {Mystate.state === ''} */}
+									{Mystate && Mystate === 'online' && <Enline />}
+									{Mystate && Mystate === 'ingame' && <Playing/>}
+									{Mystate && Mystate === 'offline' && <OffLine/>}
 								</div>
 							</div>
 							<div className="flex flex-col justify-center gap-4">

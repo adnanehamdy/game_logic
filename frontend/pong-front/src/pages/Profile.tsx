@@ -102,7 +102,7 @@ export const UserContext = createContext<{
       } catch (error) {
         console.error("Error fetching user data:");
       }
-
+    // }, [username, userData]);
 
   }, [userData, username, profile.data]);
 
@@ -127,23 +127,7 @@ export const UserContext = createContext<{
     draws: 0,
   });
 
-//   useEffect(() => {
-// 	try {
-// 	  const response =  axios.get(`http://${import.meta.env.VITE_API_URL}/profile/me`, { withCredentials: true })
-// 	  .then ((response) => {
-// 		const newData = response.data;
-// 			if (!isEqual(newData, MyuserData)) {
-// 				setMyUserData(newData);
-// 			}
-// 			// console.log(response.data);
-// 		})
-// 	} catch (error) {
-// 		console.error("Error fetching user data:");
-// 	}
-	
-// }, [MyuserData, username]);
-
-
+  console.log(userData?.user_data?.state);
   return (
     <UserContext.Provider value={{ userData,setUserData}}>
     {/* <MyContext.Provider value={{ MyuserData,setMyUserData}}> */}
@@ -151,13 +135,13 @@ export const UserContext = createContext<{
 
       <div>
         {/* <NavBar avatar={MyuserData?.user_data?.avatar} username={MyuserData?.user_data?.username}/> */}
-        <HeadProfile
+       {userData?.user_data?.state &&  <HeadProfile
         state={userData?.user_data?.state}
           profile={userData?.user_data?.avatar}
           name={userData?.user_data?.username}
           friendNum={userData?.friends?.length.toString()}
 		  me={userData?.user_data?.me}
-        />
+        />}
         <div className="md:flex md:flex-row md:justify-center md:justify-around  md:w-full lg:pl-28">
           <div>
             <LastMatch

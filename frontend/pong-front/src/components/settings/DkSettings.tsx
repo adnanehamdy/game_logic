@@ -61,6 +61,7 @@ export function DkSettings ( {hide}: Props ) {
 			}
 			)
 			.then((response) => {
+				setBase(`http://${import.meta.env.VITE_API_URL}/avatars/${response.data}`);
 				profile?.setData((prevUserData) => ({
 					...prevUserData,
 					user_data: {
@@ -71,7 +72,6 @@ export function DkSettings ( {hide}: Props ) {
 
 
 
-				setBase(`http://${import.meta.env.VITE_API_URL}/avatars/${response.data}`);
 
 			  })
 			//   profile.data.user_data.avatar = BASE_URL; 

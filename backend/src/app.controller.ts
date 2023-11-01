@@ -223,7 +223,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
       if (!isSaved){
         throw new HttpException('Failed to upload avatar', HttpStatus.BAD_REQUEST);
       }
-      return file.filename;
+      return 'http://localhost:3000/avatars/'+file.filename;
     }
 
   @Get('/profile/:username')
