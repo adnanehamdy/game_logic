@@ -7,10 +7,11 @@ import { Game } from "../../../pages/Game";
 import { useState } from "react";
 import { useEffect } from "react";
 import axios from "axios";
+import { GameSetup } from "../../Game/GameSetup";
 
 interface Props {
     TableType: string,
-    GameType: string,
+    OpponnentId: number,
     imgPath: string,
     user_id: number,
 }
@@ -29,29 +30,36 @@ const  Param : customParam =
 
 
 
-export function GameCard({ TableType, GameType, imgPath, user_id }: Props) {
+export function GameCard({ TableType , imgPath, OpponnetId ,user_id }: Props) {
   const navigate = useNavigate();
   const [showFriends, setShowFriends] = React.useState(false);
   const [chooseFr, setChooseFr] = React.useState(false);
+  let Type : string | null;
+  // let Color : string | null;
+  if (TableType == "AI Table")
+    Type = '5';
+  else if (TableType === 'World Table')
+    Type = sessionStorage.getItem('Timer');
+  else 
+    Type = '6'
 
-  if (GameType == "Bot Game")
-	sessionStorage.setItem("Timer", "5");
+console.log('Type ==================== ', Type);
   const handleClick = () => {
     
-    console.log(GameType);
-    if (GameType === "0") {
-      // If GameType is 1, set the state to show Friends component
+    console.log(TableType);
+    if (TableType === 'friend Table') {
       setShowFriends(true);
     } else {
-      // If GameType is not 1, navigate to '/game'
-      navigate('/game', { state: { gameDuration: GameType, user_id: user_id } });
-    }
+       navigate('/game', { state: { gameDuration: Type, user_id: user_id, OpponnetId : OpponnetId} });
+      //  return (<GameSetup gameDuration={Type}  user_id={user_id} OpponnentId={OpponnetId}/>)
+x    }
   };
 
   const handleFriendsClose = () => {
     
     console.log("me = " + user_id);
-    navigate('/game', { state: { gameDuration: GameType, user_id: user_id} });
+    // return (<GameSetup gameDuration={Type}  user_id={user_id} OpponnentId={OpponnetId}/>)
+    navigate('/game', { state: { gameDuration: Type, user_id: user_id, OpponnetId : OpponnetId} });
   };
 
   return (

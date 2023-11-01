@@ -35,19 +35,16 @@ interface MBburgerProps {
 	
 	export function MBburger() {
 
-	// const data = useContext(MyContext);
-
 	const [state, setState] = useState<any>(null);
     const chatContext = useContext(ChatSocketContext);
 
     useEffect(() => {
-      // Fetch data when the component mounts
+
       const fetchData = async () => {
         try {
-          // Replace the URL with your API endpoint
+
           const response = await axios.get(`http://${import.meta.env.VITE_API_URL}/profile/me`, { withCredentials: true });
 
-          // const result = await response.json();
           console.log('data = ', response.data.friends);
           let Mydata : friendsList;
           Mydata = {id: response.data.user_data.id, username: response.data.user_data.username, avatar: response.data.user_data.avatar, state : response.data.user_data.state}
@@ -56,10 +53,10 @@ interface MBburgerProps {
         } catch (error) {
           console.error('Error fetching data:', error);
         }
-        // 
+
         console.log('initial data', state);
       };
-      // chatContext?.emit('join-room', {roomId});
+
       fetchData();
     }, []);
 
@@ -68,16 +65,10 @@ interface MBburgerProps {
         {
         console.log('on state -------', friendState);
 
-
-        // start
-            ///end 
-            // console.log("DATA MN 9BL", data)
             console.log('value', friendState)
             console.log('id', friendState);
             // if (data)
         setState((old) => (old.map((item : friendsList) => (item.id === friendState.id ? { ...item, ...friendState } : item))))
-        // }})
-        // return null;
       });
       return (() =>
       {
@@ -85,45 +76,10 @@ interface MBburgerProps {
         })
         }, [])
 	let name = 'achraf';
-	// console.log('all states ', state)
-	// useEffect(()=>
-	// {
 
-	// }, [state])
-	// console.log('value', state?.state?.filter((item) => name === item.username))
-	// const stateValue = filteredStates?.[0]?.state;
-	// console.log('value' , stateValue);
-
-	// const state = useDataContext();
-	// const chatContext = useContext(ChatSocketContext);
-	// const profile = useProfilecontext()
-
-	// const chatContext = useContext(ChatSocketContext);
-	// const state = useDataContext();
-	// console.log(state);
-	// let name = 'achraf';
 	const profile = useProfilecontext();
-	// console.log('state value = ', state?.state?.find((item) => name === item.username)?.state)
-	// useEffect(() => 
-	// {
-	//   if (chatContext?.connected)
-	//   console.log('connected >>>>>>>>>>>>>>>>>>	')
-	// 	chatContext?.on('State', (friendState : friendsList)=>
-	// 	{
-	// 	console.log('on state --------------------------------------<>')
-	// 	state?.setData((old) =>
-	// 	old.map((item : friendsList) => (item.id === friendState.id ? { ...item, ...friendState } : item))
-	// 	)})
-	// 	//   return () =>{
-	// 		// chatContext?.off('State');}
-	// }, [chatContext, profile?.data?.user_data.avatar, state, profile.setData])
-	const isIngame = 'ingame';
-	// const {param} = useParams();
-	// let isOnline = 'ingame'
-		// console.log('before comparison-----------------------')
-		// console.log('comparison = ---------------',  (state?.data[state?.data.length - 1].state && state?.data[state?.data.length - 1].state === isOnline));
-	// console.log(param + " this is you param");
 
+	const isIngame = 'ingame';
 
 	const initialColors: { [key: string]: string } = {
 		button1: 'initial',
@@ -133,7 +89,7 @@ interface MBburgerProps {
 		button5: 'initial',
 		button6: 'initial',
 	};
-	
+
 	const strokeColors: { [key: string]: string } = {
 		img1: '#808191',
 		img2: '#808191',
@@ -161,9 +117,7 @@ interface MBburgerProps {
 			setButtonColors(newColors);
 			setstrokeColor(newImgs);
 		};
-	
 
-	
 	return (
 		<>
 		<div className="h-screen border w-[112px] flex justify-center">
@@ -182,7 +136,7 @@ interface MBburgerProps {
 				</svg>
                 </button>
 			</NavLink>
-		
+
 			<NavLink to="/Chat">
 				<button onClick={() => handleClick('button3', 'img3')} style={{ backgroundColor: buttonColors.button3 }} className={`p-3 border shadow-md border-white w-[50px] h-[50px] flex items-center justify-center rounded-2xl `}>
 				<svg width="20" height="20" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">

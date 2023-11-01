@@ -65,11 +65,11 @@ export function MbGameSettings ( {hide}:Props ) {
 
 		const color = Buttonnum.charAt(Buttonnum.length - 1);
 		if (color == '1')
-			sessionStorage.setItem("Table", "#000000");
+			sessionStorage.setItem("Color", "#000000");
 		else if (color == '2')
-			sessionStorage.setItem("Table", "#6C5DD3");
+			sessionStorage.setItem("Color", "#6C5DD3");
 		else
-			sessionStorage.setItem("Table", "#7EC3DD");
+			sessionStorage.setItem("Color", "#7EC3DD");
 	}
 
 	const [twoFA, setTwoFa] = React.useState(false);

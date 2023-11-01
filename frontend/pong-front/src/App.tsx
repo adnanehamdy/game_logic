@@ -87,7 +87,7 @@ interface friendsList{
 				  <NavBar/>
 					<Routes>
 					  <Route path={`/Profile/:username`} element={<CheckProfile />} />
-				  <Route path="/Game" element={<GameSetup />} />
+				  <Route path="/game" element={<GameSetup />} />
 					  <Route path="/2fa" element={<TwofaAuth />} />
 					  <Route path="/Chat" element={<Chat />} />
 					  <Route path="/Chat/:id" element={<Chat />} />

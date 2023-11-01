@@ -52,14 +52,14 @@ export const UserContext = createContext<{
   username = 'me';
 	React.useEffect(() => {
     var timer = sessionStorage.getItem("Timer");
-		var table = sessionStorage.getItem("Table");
-		if (table == null)
-    table = '#000000'
+		var Color = sessionStorage.getItem("Color");
+		if (Color == null)
+    Color = '#000000'
   if (timer == null) {
     timer = '1';
   }
   sessionStorage.setItem("Timer", timer);
-		sessionStorage.setItem("Table", table);
+		sessionStorage.setItem("Table", Color);
 	  }, [username]);
     
     let name: string = username ? username : "";

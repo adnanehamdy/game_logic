@@ -57,7 +57,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
                     console.log("this.client[sokcetId] = ",this.clients.get(client.id));
                     //save the message to the database
                     const isSaved = await this.usersService.saveMessage(this.clients.get(client.id), +payload.roomId, payload.message);
-                    console.log("isSaved = ",isSaved);
+                    console.log("isSaved = ",isSaved)
                     //send the message to the room
                     if (isSaved){
                         //exclude the blocked users
