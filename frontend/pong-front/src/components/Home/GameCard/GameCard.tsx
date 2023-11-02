@@ -36,9 +36,10 @@ export function GameCard({ TableType , imgPath, OpponnetId ,user_id }: Props) {
   const [chooseFr, setChooseFr] = React.useState(false);
   let Type : string | null;
   // let Color : string | null;
+  console.log('table tyepe', TableType)
   if (TableType == "AI Table")
     Type = '5';
-  else if (TableType === 'World Table')
+  else if (TableType === 'world Table')
     Type = sessionStorage.getItem('Timer');
   else 
     Type = '6'

@@ -67,7 +67,7 @@ interface MBburgerProps {
 
             console.log('value', friendState)
             console.log('id', friendState);
-            // if (data)
+            if (state)
         setState((old) => (old.map((item : friendsList) => (item.id === friendState.id ? { ...item, ...friendState } : item))))
       });
       return (() =>

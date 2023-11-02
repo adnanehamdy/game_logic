@@ -181,6 +181,11 @@ export class gameService {
         return (this.dashBoard.allUsersIDs.indexOf(user_id));
     }
 
+    // ClientIdbyUserId(user_id : number)
+    // {
+
+    // }
+
     async botAchievement(socket: Socket)
     {
         let gp_index = this.matchPlayerFromSocketId(socket)
@@ -202,13 +207,23 @@ export class gameService {
     socket.emit('Score', this.getScore(socket));
     // score[0] = 5;
 
-    if (score && score[1] && score[0] && score[0] === 5 || score[1] === 5)
+    try
     {
-        if (score[0] > score[1])
+        if (score && score[0] !== undefined && score[1] !== undefined && 
+                (score[0] === 5 || score[1] === 5))
         {
-            this.dashBoard.games[gameDuration].game[gp_index[0]].res[1] = 'You Won';
-            // console.log('me won');
+            if (score[0] > score[1])
+            {
+                this.dashBoard.games[gameDuration].game[gp_index[0]].res[1] = 'You Won';
+                // console.log('me won');
+            }
         }
+
+    }
+    catch(error)
+    {
+        console.error(error)
+    }
     this.dashBoard.games[gameDuration].game[gp_index[0]].res[0] = 'false';
     socket.emit('delay', this.getGameResult(socket));
     socket.disconnect();

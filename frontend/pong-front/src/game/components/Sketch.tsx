@@ -25,6 +25,10 @@ interface friendsList{
 	}
 
 const GameCanvas = ( ) => {
+  let color =  sessionStorage.getItem('Color')
+  if (color === null)
+    color = "#6C5DD3";
+  console.log('color--------------------------------------------', color)
   const socket = useContext(SocketContext);
   
   const Score : number[] = [];
@@ -68,6 +72,8 @@ const GameCanvas = ( ) => {
     let  client_id = socket.id;
     p5.setup = () => { 
       const canvas = p5.createCanvas(p5.windowWidth / 2, p5.windowHeight / 2);
+      canvas.id('myCanvas');
+      p5.select('#myCanvas').style('border-color', color);
       paddles = new Paddles(p5);
       // chatSocket.emit('State', 'inGame');
       // // // console.log('in game data li jat', state?.data);
@@ -85,8 +91,8 @@ const GameCanvas = ( ) => {
           ball_coordonation[1] = p5.map(coordonation[1], 0, 331, 0, p5.windowHeight / 2);
           ball_coordonation[2] = p5.map(24, 0, 683, 0, p5.windowWidth /2);
         });
-        p5.stroke("#6C5DD3");
-        p5.fill("#6C5DD3");
+        p5.stroke(color);
+        p5.fill(color);
         p5.ellipse(ball_coordonation[0], ball_coordonation[1], ball_coordonation[2], ball_coordonation[2]);
         socket.emit("updatePaddlePosition");
         socket.emit("getScore", (score : number[])=>
@@ -129,7 +135,7 @@ const GameCanvas = ( ) => {
         //     leaveGame = 'online';
         //   }
         // // // console.log("text");
-        p5.fill('#6C5DD3');
+        p5.fill(color);
         p5.textSize(32);
         p5.textAlign(p5.CENTER, p5.CENTER);
         // // // console.log(canvasTime[1] + " && " + client_id);

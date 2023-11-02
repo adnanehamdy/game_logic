@@ -45,6 +45,7 @@ export class GameGateway implements OnGatewayDisconnect {
     this.notification.sendGameEndNotification('endgame', userId);}
     if (this.gameService.gameloaded(Client))
     {
+        console.log("endgame sent");
       const ids = this.gameService.getPlayersId(Client);
       const gameId = this.gameService.getGameId(Client)
       let result = this.gameService.getGameResult(Client)
@@ -112,6 +113,7 @@ export class GameGateway implements OnGatewayDisconnect {
     let gameduration : string | string [];
     let id : string | string[];
     let user_id : number;
+    let opponent : number;
     gameduration = Client.handshake.query.gameDuration;
     id = Client.handshake.query.user_id;
 
@@ -123,14 +125,19 @@ export class GameGateway implements OnGatewayDisconnect {
       res[0] = 'false';
       res[1] = 'Your Already In Game';
       Client.emit('delay', res);
-      this.handleDisconnect(Client);
+      this.handleDisconnect(Client)
       return ;
     }
+
     let gameDuration = (parseInt(gameduration.toString(), 10));
     this.logger.log(`Client connected: ${Client.id}`)
 
+    // if (gameDuration === )
     if (gameDuration < 1 || gameDuration > 5)
+    {
+      Client.disconnect();
       return ;
+    }
     if (gameDuration !== 5 && this.gameService.isGameOpen(gameDuration - 1))
     {
 
