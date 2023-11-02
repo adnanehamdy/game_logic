@@ -40,24 +40,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage('chat')
     async handleChatEvent(@MessageBody() payload: ChatDto, @ConnectedSocket() client: Socket){
         //debug
-        console.log("payload in chat = ",payload);
+        // console.log("payload in chat = ",payload);
         //end debug
         let hasAccess = false;
         if (this.clients.has(client.id)){
             hasAccess = await this.usersService.hasAccessToRoom(this.clients.get(client.id), +payload.roomId);
             if (hasAccess){
                 //debug
-                console.log("client has access to the room")
+                // console.log("client has access to the room")
                 //end debug
                 //if the user is muted check if the mute is over ---- if the mute is over ----->update the mute state the user can send messages again 
                 const isMuted = await this.usersService.isMuted(this.clients.get(client.id), +payload.roomId);
                 
                 if (!isMuted){
-                    console.log("client is not muted")
-                    console.log("this.client[sokcetId] = ",this.clients.get(client.id));
+                    // console.log("client is not muted")
+                    // console.log("this.client[sokcetId] = ",this.clients.get(client.id));
                     //save the message to the database
                     const isSaved = await this.usersService.saveMessage(this.clients.get(client.id), +payload.roomId, payload.message);
-                    console.log("isSaved = ",isSaved)
+                    // console.log("isSaved = ",isSaved);
                     //send the message to the room
                     if (isSaved){
                         //exclude the blocked users
@@ -88,7 +88,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage('join-room')
     // @UsePipes(CustomValidationPipe)
     async handleJoinRoomEvent(@MessageBody() payload: joinRoomDto, @ConnectedSocket() client: Socket) {
-        console.log("payload in join room = ",payload);
+        // console.log("payload in join room = ",payload);
         let hasAccess = false;
         if (this.clients.has(client.id)){
             hasAccess = await this.usersService.hasAccessToRoom(this.clients.get(client.id), +payload.roomId);
@@ -119,21 +119,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // this.logger.log(`Client connected: ${client.id}`)
         try {
             const Cookie = client.handshake.headers.cookie.split("=")[1];
-            console.log("Cookie = ",Cookie);
+            // console.log("Cookie = ",Cookie);
             const payload = await this.jwtService.verifyAsync(Cookie, { secret: process.env.JWT_CONST });
             // console.log("Payload = ",Payload);
             //add the client to the map
-            console.log('payload = ',payload)
+            // console.log('payload = ',payload)
             const user = await this.usersService.findOne(payload.sub);
             if (user){
-                console.log("user = ",user);
-                console.log("clients after connect = ",this.clients);  
+                // console.log("user = ",user);
+                // console.log("clients after connect = ",this.clients);  
                 //save the user state in the database
                 const test = await  this.usersService.findById(user.id);
+                console.log('initial state-------------------------------------------------- = ', test)
                 const values = [...this.clients.values()];
                 if (values.includes(user.id) ===false)
                 {
-                    console.log('initial state-------------------------------------------------- = ', test)
                     console.log('new user')
                     const isSaved = await this.notifications.saveUserState(user.id, "online");
                     //broadcast the user state change to all connected the users
@@ -148,7 +148,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
                 this.clients.set(client.id, user.id);
             }
         }catch(error){
-            console.log(error);
+            // console.log(error);
             // throw new WsException('unauthorized');
             client.disconnect();
             // throw new Error('unauthorized');
@@ -160,7 +160,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     async handleDisconnect(@ConnectedSocket() client: Socket) {
         // triger the user state change to non active
         //remove the client form the map
-        console.log("clients after disconnect = ",this.clients);
+        // console.log("clients after disconnect = ",this.clients);
         // this.logger.log(`Socket disconnected ${socket}`);
         // this.logger.log(`Cliend id:${client.id} disconnected`);
         try{
@@ -180,7 +180,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             }
         }
         catch(error){
-            console.log(error);
+            // console.log(error);
             return ;
         }
     }
@@ -219,25 +219,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     @OnEvent('gameState')
-    async handleGameStartEvent(uId: number, state: string) {
+    async handleGameStartEvent(state: string, uId: number) {
             //get friend socket
         try{
-            console.log('user', uId);
             const user = await this.usersService.findById(uId);
             const isSaved = await this.notifications.saveUserState(uId, state);
-            console.log('state ======= ' , state)
-            console.log('id ======= ' , uId)
-
             if (isSaved)
-            {
                 this.server.emit('State', {id: uId, username: user.username, avatar: user.avatar, state: state});
-            }
-            else
-                console.log('------------------------DIDNT GET SAVED')
-            }
-            // }
+        }
         catch(error){
-            console.log(error);
+            // console.log(error);
             throw new WsException('Error occured while saving the state');
         }        
     }

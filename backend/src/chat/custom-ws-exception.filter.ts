@@ -10,6 +10,6 @@ export class CustomWsExceptionsFilter extends BaseWsExceptionFilter{
         const client = host.switchToWs().getClient();
         // console.log("client = ",client);
         // console.log("exception = ",exception.toString());
-        client.emit('error', exception.toString())
+        client.emit('error', exception.toString());
     }
 }

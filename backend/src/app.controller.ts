@@ -17,6 +17,7 @@ import { NotificationsService } from './chat/event.notifications';
 import { CustomExceptionsFilter } from './CustomExceptionsFilter';
 import { ProfileStringToDtoPipe } from './string-to-dto.pipe';
 import { UsernameStringToDtoPipe } from './username-validation.pipe';
+import { RoomIdStringToDtoPipe } from './room-id-validation-pipe';
 
 export const multerConfig = {
   storage: diskStorage({
@@ -213,9 +214,9 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
           //remove old avatar
           //update path before romeving it
           //ectract the filename from the path
-          let newPath = path.split('/').pop()
+          let newPath = path.split('/').pop();
           //debug
-          // console.log(newPath);
+          console.log(newPath);
           //end debug
           fs.unlinkSync(join('/backend/public','avatars', newPath));
       }
@@ -223,7 +224,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
       if (!isSaved){
         throw new HttpException('Failed to upload avatar', HttpStatus.BAD_REQUEST);
       }
-      return 'http://localhost:3000/avatars/'+file.filename;
+      return `http://${process.env.NEST_APP_HOST}/avatars/`+file.filename;
     }
 
   @Get('/profile/:username')
@@ -407,7 +408,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
     
   @Delete('/leave-room/:roomId')
   @UseGuards(Jwt2faAuthGuard)
-  async leaveRoom(@Req() req: Request, @Param('roomId') roomId: string){
+  async leaveRoom(@Req() req: Request, @Param('roomId', RoomIdStringToDtoPipe) roomId: string){
       const user = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
       const isLeft = await this.usersService.leaveRoom(user.id, +roomId);
       if (!isLeft)
@@ -461,7 +462,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
         return 'Password set seccussfully';        
   }
 
-  @Post('/remove-room-password')
+  @Delete('/remove-room-password')
   @UseGuards(Jwt2faAuthGuard)
   async removeRoomPassword(@Req() req: Request, @Body() body: RoomSettingsDto){
         // check if the user is the owner of the room
@@ -552,7 +553,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Get('get-room-members/:roomId')
   @UseGuards(Jwt2faAuthGuard)
-  async getRoomMembers(@Req() req: Request, @Param('roomId') roomId: string){
+  async getRoomMembers(@Req() req: Request, @Param('roomId', RoomIdStringToDtoPipe) roomId: string){
     const user = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
     const isMember = await this.usersService.checkIfUserExistsInRoomV2(user.id, +roomId);
     if (!isMember)
@@ -565,7 +566,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Get('get-room-messages/:roomId')
   @UseGuards(Jwt2faAuthGuard)
-  async getRoomMessages(@Req() req: Request, @Param('roomId') roomId: string){
+  async getRoomMessages(@Req() req: Request, @Param('roomId', RoomIdStringToDtoPipe) roomId: string){
     const user = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
     const isMember = await this.usersService.checkIfUserExistsInRoomV2(user.id, +roomId);
     if (!isMember)
@@ -609,7 +610,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Delete('delete-room/:roomId')
   @UseGuards(Jwt2faAuthGuard) 
-  async deleteRoom(@Req() req: Request, @Param('roomId') roomId: string){
+  async deleteRoom(@Req() req: Request, @Param('roomId', RoomIdStringToDtoPipe) roomId: string){
     const user = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
     //check if the user is owner of the room
     const isDeleted = await this.usersService.deleteRoom(user.id, +roomId);
@@ -654,7 +655,7 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
 
   @Get('get-my-role/:roomId')
   @UseGuards(Jwt2faAuthGuard)
-  async getMyRole(@Req() req: Request, @Param('roomId') roomId: string){
+  async getMyRole(@Req() req: Request, @Param('roomId', RoomIdStringToDtoPipe) roomId: string){
     const user = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
     const role = await this.usersService.getMyRole(user.id, +roomId);
     if (!role)
@@ -671,9 +672,23 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
     return users;
   }
 
+  @Get('get-user/:id')
+  @UseGuards(Jwt2faAuthGuard)
+  async getUser(@Req() req: Request, @Param('id', RoomIdStringToDtoPipe) id: string){
+    const user = await this.usersService.findById(+id);
+    if (!user)
+      throw new HttpException('Failed to get user', HttpStatus.BAD_REQUEST);
+    return {
+      username: user.username,
+      avatar:   user.avatar,
+      state:    user.state,
+      rating:   user.rating,
+    };
+  }
+
   @Get('get-room/:roomId')
   @UseGuards(Jwt2faAuthGuard)
-  async getRoom(@Req() req: Request, @Param('roomId') roomId: string){
+  async getRoom(@Req() req: Request, @Param('roomId', RoomIdStringToDtoPipe) roomId: string){
     const room = await this.usersService.getRoomById(+roomId);
     // console.log(room)
     if (!room)
