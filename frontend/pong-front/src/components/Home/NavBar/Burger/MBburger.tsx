@@ -33,49 +33,69 @@ interface MBburgerProps {
 	  state:    '',
 	}
 	
+	
 	export function MBburger() {
 
 	const [state, setState] = useState<any>(null);
+	// const [myState, setMyState] = useState<any>(null);
     const chatContext = useContext(ChatSocketContext);
-
-    useEffect(() => {
-
-      const fetchData = async () => {
+	let  Mydata : friendsList;
+	const fetchData = async () => {
         try {
 
           const response = await axios.get(`http://${import.meta.env.VITE_API_URL}/profile/me`, { withCredentials: true });
 
           console.log('data = ', response.data.friends);
-          let Mydata : friendsList;
+         
           Mydata = {id: response.data.user_data.id, username: response.data.user_data.username, avatar: response.data.user_data.avatar, state : response.data.user_data.state}
           response.data.friends = [...response.data.friends, Mydata];
+		  console.log('initial friends data', response.data.friends);
           setState(response.data.friends);
+		//   setMyState({id: response.data.user_data.id, username: response.data.user_data.username, avatar: response.data.user_data.avatar, state : response.data.user_data.state})
         } catch (error) {
           console.error('Error fetching data:', error);
         }
 
+		
         console.log('initial data', state);
+		// console.log('my state -------', myState);
       };
+    useEffect(() => {
 
       fetchData();
+	  chatContext?.on('State', (friendState : friendsList)=>
+	  {
+		  console.log('value', friendState)
+		  console.log('before update', state);
+		  if (state === null)
+			fetchData()
+		  setState((old) => (old.map((item : friendsList) => (item.id === friendState.id ? { ...item, ...friendState } : item))))
+		  console.log('updated state',state);
+	  
+  		});
+	return (() =>
+	{
+		(chatContext?.off('State'))
+	  })
     }, []);
-
+	console.log('<state>', state);
     useEffect(() => {
-    chatContext?.on('State', (friendState : friendsList)=>
-        {
-        console.log('on state -------', friendState);
-
-            console.log('value', friendState)
-            console.log('id', friendState);
-            if (state)
-        setState((old) => (old.map((item : friendsList) => (item.id === friendState.id ? { ...item, ...friendState } : item))))
-      });
-      return (() =>
-      {
-          (chatContext?.off('State'))
-        })
+    // chatContext?.on('State', (friendState : friendsList)=>
+    //     {
+	// 		// console.log('Friend State update')
+	// 		console.log('value', friendState)
+    //         console.log('before update', state);
+    //         if (state)
+	// 		setState((old) => (old.map((item : friendsList) => (item.id === friendState.id ? { ...item, ...friendState } : item))))
+	// 		console.log('updated state',state);
+		
+	// });
+    //   return (() =>
+    //   {
+    //       (chatContext?.off('State'))
+    //     })
         }, [])
-	let name = 'achraf';
+	// let name = 'achraf';
 
 	const profile = useProfilecontext();
 
@@ -217,7 +237,7 @@ interface MBburgerProps {
 				<MbSettings hide={() => SetSettings(false)}/>
 			</div>
 		}
-		{game &&
+		{game && state && state[state.length - 1].state === 'online' &&
 					<div>
 						<GameMode hide={() => Setgame(!game)}/>
 						<MbGameMode  hide={() => Setgame(!game)}/>

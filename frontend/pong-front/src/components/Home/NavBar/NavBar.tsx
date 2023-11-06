@@ -32,54 +32,6 @@
     // const state = useDataContext();
     const profile = useProfilecontext();
 
-    // const [data, setData] = useState<any>(null);
-    // // const chatContext = useContext(ChatSocketContext);
-
-    // useEffect(() => {
-    //   // Fetch data when the component mounts
-    //   const fetchData = async () => {
-    //     try {
-    //       // Replace the URL with your API endpoint
-    //       const response = await axios.get(`http://${import.meta.env.VITE_API_URL}/profile/me`, { withCredentials: true });
-
-    //       // const result = await response.json();
-    //       console.log('data = ', response.data.friends);
-    //       let Mydata : friendsList;
-    //       Mydata = {id: response.data.user_data.id, username: response.data.user_data.username, avatar: response.data.user_data.avatar, state : response.data.user_data.state}
-    //       response.data.friends = [...response.data.friends, Mydata];
-    //       setData(response.data.friends);
-    //     } catch (error) {
-    //       console.error('Error fetching data:', error);
-    //     }
-    //     // 
-    //     console.log('initial data', data);
-    //   };
-    //   // chatContext?.emit('join-room', {roomId});
-    //   fetchData();
-    // }, []);
-
-    // useEffect(() => {
-    // chatContext?.on('State', (friendState : friendsList)=>
-    //     {
-    //     console.log('on state -------', friendState);
-
-
-    //     // start
-    //         ///end 
-    //         console.log("DATA MN 9BL", data)
-    //         console.log('value', friendState)
-    //         console.log('id', friendState);
-    //         if (data)
-    //     setData((old) => (old.map((item : friendsList) => (item.id === friendState.id ? { ...item, ...friendState } : item))))
-    //     // }})
-    //     // return null;
-    //   });
-    //   return (() =>
-    //   {
-    //       (chatContext?.off('State'))
-    //     })
-    //     }, [])
-
         useEffect(()=>
         {
 
@@ -102,7 +54,7 @@
                   <div className="pr-20">
                     <Notification
                       clicked={() => setShowNotif(!showNotif)}
-                      msgnum="5"
+                      msgnum={profile?.pending_requests?.length}
                     />
                   </div>
                   <div className="lg:pr-16">

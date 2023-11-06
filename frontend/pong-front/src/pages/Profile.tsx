@@ -107,26 +107,6 @@ export const UserContext = createContext<{
   }, [userData, username, profile.data]);
 
 
-  // const [MyuserData, setMyUserData] = useState<MyUserData>({
-  //   user_data: {
-  //     id: 0,
-  //     username: 'me',
-  //     avatar: "",
-  //     rating: 0,
-	//   me: false,
-  //     is_two_factor_auth_enabled: false,
-	//   state: ''
-  //   },
-  //   friends: [],
-	// blocks: [],
-  //   match_history: [],
-	// pending_requests: [],
-  //   achievements: [],
-  //   wins: 0,
-  //   loses: 0,
-  //   draws: 0,
-  // });
-
   console.log(userData?.user_data?.state);
   return (
     <UserContext.Provider value={{ userData,setUserData}}>

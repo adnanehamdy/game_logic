@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@p5-wrapper/react": "^4.2.0"
+  }
+}

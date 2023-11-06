@@ -18,9 +18,9 @@ export function DkNotif () {
 			<div className="fixed bg-white right-56 top-10 zz border shadow-xl rounded-custom w-[550px] h-[450px] Dk-display">
 			<div className="text-[#11142D] text-md font-medium pt-10 pl-10 ">Recent Notification</div>
 			<div className="h-[380px] overflow-y-auto">
-			{profile?.data?.pending_requests.map((notif: {id: number, avatar: string; username: string} , index: number) => (
+			{profile?.data?.pending_requests.map((notif: {id: number, avatar: string; username: string , type : string} , index: number) => (
 						<div key={index}>
-							<NotifMsg profile={notif.avatar} name={notif.username} requestType="Request a friend invitation"/>
+							<NotifMsg profile={notif.avatar} name={notif.username} requestType={notif.type} id={notif.id}/>
 						</div>
 					))
 					}

@@ -71,7 +71,7 @@ interface MyUserData {
   
   export const ProfileProvider: React.FC<StateProviderProps> = ({ children }: StateProviderProps) => {
     const [data, setData] = useState<any>(null);
-    const chatContext = useContext(ChatSocketContext);
+    // const chatContext = useContext(ChatSocketContext);
   
     useEffect(() => {
       // Fetch data when the component mounts

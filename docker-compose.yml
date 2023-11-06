@@ -32,7 +32,7 @@ services:
       - backend
     volumes:
       - /home/adnane/akhir_v0/frontend/pong-front/src:/frontend/pong-front/src
-      - /home/adnane/akhir_v0/backend/frontend/pong-front/public:/frontend/pong-front/public
+      - /home/adnane/akhir_v0/frontend/pong-front/public:/frontend/pong-front/public
 
 volumes:
   postgres:

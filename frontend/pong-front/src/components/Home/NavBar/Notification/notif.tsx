@@ -22,9 +22,9 @@ export function Notif () {
         <>
             <div className="flex flex-col p-8 pt-[140px] notif-container lg:hidden">
                 <div className="text-[#11142D] text-2xl font-medium">Recent Notification</div>
-				{profile?.data?.pending_requests.map((notif: {id: number, avatar: string; username: string} , index: number) => (
+				{profile?.data?.pending_requests.map((notif: {id: number, avatar: string, username: string , type : string} , index: number) => (
 						<div key={index}>
-							<NotifMsg profile={notif.avatar} name={notif.username} requestType="Request a friend invitation"/>
+							<NotifMsg profile={notif.avatar} name={notif.username} requestType={notif.type} id={notif.id}/>
 						</div>
 					))
 					}

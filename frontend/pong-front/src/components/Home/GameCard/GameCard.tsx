@@ -11,9 +11,10 @@ import { GameSetup } from "../../Game/GameSetup";
 
 interface Props {
     TableType: string,
-    OpponnentId: number,
     imgPath: string,
+    OpponentId: number,
     user_id: number,
+    hide: () => void; 
 }
 
 
@@ -23,14 +24,14 @@ interface customParam
   gameDuration: string;
 }
 
-const  Param : customParam = 
-{
-  gameDuration: '1',
-}
+// const  Param : customParam = 
+// {
+//   gameDuration: '1',
+// }
 
 
 
-export function GameCard({ TableType , imgPath, OpponnetId ,user_id }: Props) {
+export function GameCard({ TableType , imgPath, OpponentId ,user_id, hide }: Props) {
   const navigate = useNavigate();
   const [showFriends, setShowFriends] = React.useState(false);
   const [chooseFr, setChooseFr] = React.useState(false);
@@ -42,7 +43,7 @@ export function GameCard({ TableType , imgPath, OpponnetId ,user_id }: Props) {
   else if (TableType === 'world Table')
     Type = sessionStorage.getItem('Timer');
   else 
-    Type = '6'
+    Type = '1'
 
 console.log('Type ==================== ', Type);
   const handleClick = () => {
@@ -51,16 +52,17 @@ console.log('Type ==================== ', Type);
     if (TableType === 'friend Table') {
       setShowFriends(true);
     } else {
-       navigate('/game', { state: { gameDuration: Type, user_id: user_id, OpponnetId : OpponnetId} });
+      hide();
+       navigate('/game', { state: { gameDuration: Type, user_id: user_id, OpponentId : OpponentId} });
       //  return (<GameSetup gameDuration={Type}  user_id={user_id} OpponnentId={OpponnetId}/>)
-x    }
+    }
   };
 
   const handleFriendsClose = () => {
     
     console.log("me = " + user_id);
     // return (<GameSetup gameDuration={Type}  user_id={user_id} OpponnentId={OpponnetId}/>)
-    navigate('/game', { state: { gameDuration: Type, user_id: user_id, OpponnetId : OpponnetId} });
+    navigate('/game', { state: { gameDuration: Type, user_id: user_id, OpponentId : OpponentId} });
   };
 
   return (
@@ -86,7 +88,7 @@ x    }
       </div>
 
       {/* Conditional rendering of Friends component */}
-      {showFriends && <Friends onClose={handleFriendsClose} />}
+      {showFriends && <Friends hide={hide} onClose={handleFriendsClose} />}
     </>
   );
 }

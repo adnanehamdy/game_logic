@@ -42,7 +42,7 @@ export class GameGateway implements OnGatewayDisconnect {
 
     if (userId){
       this.clients.delete(Client.id);
-    this.notification.sendGameEndNotification('endgame', userId);}
+    this.notification.sendGameEndNotification(userId);}
     if (this.gameService.gameloaded(Client))
     {
         console.log("endgame sent");
@@ -58,11 +58,11 @@ export class GameGateway implements OnGatewayDisconnect {
         result[1] = 'You Won';
         // console.log("winner = " + result[1]);
       }
-      else if (result[1] === 'false')
+      else if (result[0] === 'false')
       {
         if (result[1] === Client.id)
         result[1] = 'You Won'
-    }
+      }
     // console.log("console.logitha" + ids[1]);
     if (ids && ids[1] !== undefined)
     {
@@ -109,16 +109,20 @@ export class GameGateway implements OnGatewayDisconnect {
       this.handleDisconnect(Client);
     // }
     }
-    this.notification.sendGameStartNotification('ingame', user.id);
+    this.notification.sendGameStartNotification(user.id);
     let gameduration : string | string [];
     let id : string | string[];
     let user_id : number;
-    let opponent : number;
+    let Opponent : string| string[];
     gameduration = Client.handshake.query.gameDuration;
     id = Client.handshake.query.user_id;
-
+    Opponent = Client.handshake.query.OpponentId;
+    let OpponentId : number;
     if (id)
       user_id = parseInt(id.toString(), 10);
+    // console.log(Opponent);
+    if (Opponent)
+      OpponentId = parseInt(Opponent.toString(), 10);
     if (this.gameService.userInGame(user_id) !== -1)
     {
       let res : string[] = []
@@ -128,22 +132,21 @@ export class GameGateway implements OnGatewayDisconnect {
       this.handleDisconnect(Client)
       return ;
     }
-
     let gameDuration = (parseInt(gameduration.toString(), 10));
     this.logger.log(`Client connected: ${Client.id}`)
 
-    // if (gameDuration === )
-    if (gameDuration < 1 || gameDuration > 5)
+    if (gameDuration < 1 || gameDuration > 6)
     {
+      console.log("game duration", gameDuration);
+      console.log("oponent id = ", OpponentId);
       Client.disconnect();
       return ;
     }
-    if (gameDuration !== 5 && this.gameService.isGameOpen(gameDuration - 1))
+    if (gameDuration !== 5 && gameDuration !== 6 && this.gameService.isGameOpen(gameDuration - 1))
     {
-
       const gameId = this.gameService.joinGame(Client, gameDuration - 1, user_id)
       const users_ids = this.gameService.getUsersIds(Client);
-      console.log('event---------------------------------------- ', users_ids);
+      console.log('event------------------------------------- ', users_ids);
       this.io.to(gameId).emit('GameInfo', users_ids);
       this.io.to(gameId).emit("GameStarted")
       setTimeout(() => {
@@ -155,15 +158,38 @@ export class GameGateway implements OnGatewayDisconnect {
       }, 1000)
       return ;
     }
-
-    this.gameService.createGame(Client, gameduration, user_id);
+    console.log("game id", user_id, OpponentId, this.gameService.isGameAvailble(OpponentId));
+    if ((gameDuration === 6 && user_id !== OpponentId) && this.gameService.isGameAvailble(OpponentId))
+    {
+        const gameId = this.gameService.joinFriendGame(Client , user_id, OpponentId)
+        const users_ids = this.gameService.getUsersIds(Client);
+        // console.log("play with friend");
+        console.log('event------------------------------------- ', users_ids);
+        this.io.to(gameId).emit('GameInfo', users_ids);
+        this.io.to(gameId).emit("GameStarted")
+        setTimeout(() => {
+          let result : string[] = [];
+          result[0] = 'true';
+          result[1] = undefined;
+          this.io.to(gameId).emit('delay', result)
+          this.gameService.gameTimer(Client, new Date().getTime())
+        }, 1000)
+        return ;
+    }
+    // should check this one 
+    if (gameDuration === 6)
+    {
+      console.log('opponent id = ', OpponentId);
+      this.notification.sendGameRequestNotification(user_id , OpponentId)
+    }
+    this.gameService.createGame(Client, gameduration, user_id)
     if (parseInt(gameduration.toString(), 10) === 5)
     {
       this.gameService.botJoinGame(gameDuration - 1);
       const gameId = this.gameService.getGameId(Client)
-      console.log('useeeeeeers----------------------------', gameId);
-      const users_ids = this.gameService.getUsersIds(Client);
-      console.log('event---------------------------------------- ', users_ids);
+      // console.log('useeeeeeers----------------------------', gameId);
+      const users_ids = this.gameService.getUsersIds(Client)
+      // console.log('event---------------------------------------- ', users_ids);
       this.io.to(gameId).emit('GameInfo', users_ids);
       this.io.to(gameId).emit("GameStarted")
       setTimeout(() => {
@@ -179,6 +205,8 @@ export class GameGateway implements OnGatewayDisconnect {
   @SubscribeMessage('playerMovePaddle')
   playerMovePaddle(@MessageBody() newPosition :number, @ConnectedSocket() Client: Socket)
   {
+    if (newPosition !== -15 && newPosition !== 15)
+      return ;
     if (this.gameService.gameloaded(Client))
     this.gameService.playerMovePaddle(newPosition, Client)
   }
