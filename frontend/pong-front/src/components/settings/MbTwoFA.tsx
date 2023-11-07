@@ -4,8 +4,6 @@ import { useState } from "react";
 import group from "/src/assets/Group.svg"
 import mobile from "/src/assets/mobiledow.svg"
 import rec from "/src/assets/rectangle.svg"
-
-
 import { GameSetting } from "./GameSettings";
 import { MbSettings } from "./MbSettings";
 import { DkSettings } from "./DkSettings";
@@ -14,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useEffect } from "react";
 import { UserContext } from "../../pages/Profile";
+import { useProfilecontext } from "../../ProfileContext";
 
 
 interface Props {
@@ -31,18 +30,24 @@ export function MbTwoFA ( {hide}: Props) {
 	});
 	const [error, Seterror] = useState(false);
 	const [sent, Setsent] = useState(false);
-	const Data = useContext(UserContext);
+	const Mydata = useProfilecontext();
 
 	const handle2faOn = async () => {
 		try {
 			const response = await axios.post(`http://${import.meta.env.VITE_API_URL}/2fa/turn-on`, code, { withCredentials: true })
 			.then (function (response) {
 				Setsent(true);
+				Mydata?.setData((prevUserData) => ({
+					...prevUserData,
+					user_data: {
+					  ...prevUserData.user_data,
+					  is_two_factor_auth_enabled: true as any,
+					},
+				  }));
 			});
 		} catch (error) {
 			Seterror(true);
 			Setsent(false);
-			console.error('two-fa on:', error);
 			}
 		};
 
@@ -51,12 +56,17 @@ export function MbTwoFA ( {hide}: Props) {
 				const response = await axios.post(`http://${import.meta.env.VITE_API_URL}/2fa/turn-off`, code, { withCredentials: true })
 				.then (function (response) {
 					Setsent(true);
-
+					Mydata?.setData((prevUserData) => ({
+						...prevUserData,
+						user_data: {
+						  ...prevUserData.user_data,
+						  is_two_factor_auth_enabled: false as any,
+						},
+					  }));
 				});
 			} catch (error) {
 				Seterror(true);
 				Setsent(false);
-				console.error('two-fa Off:', error);
 				}
 			};
 
@@ -72,36 +82,20 @@ export function MbTwoFA ( {hide}: Props) {
 			const base64 = btoa(new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), ''));
 			setData(`data:image/png;base64,${base64}`);
 		} catch (error) {
-			console.error('Error fetching data:', error);
 		}
 		};
 
 	
 	const handleqr = () => {
 		setGenerate(!generate);
+		fetchData();
 	}
 	
 	const handleOn = () => {
-		Data?.setUserData((prevUserData) => ({
-			...prevUserData,
-			user_data: {
-			  ...prevUserData.user_data,
-			  is_two_factor_auth_enabled: true as any,
-			},
-		  }));
-
 		handle2faOn();
 	}
 
 	const handleOff = () => {
-		Data?.setUserData((prevUserData) => ({
-			...prevUserData,
-			user_data: {
-			  ...prevUserData.user_data,
-			  is_two_factor_auth_enabled: false as any,
-			},
-		  }));
-
 		handle2faOff();
 	}
 
@@ -113,7 +107,6 @@ export function MbTwoFA ( {hide}: Props) {
 			.then((respnse) => {
 			})
 		  } catch (error) {
-			console.error("Error fetching user data:");
 		  }
 	  }, []);
 
@@ -185,7 +178,12 @@ export function MbTwoFA ( {hide}: Props) {
 										<div id="last" className="flex flex-col items-center border border-[3px] border-[#BACCFD] rounded-custom w-[240px] h-[257px] pt-5">
 											<div className="text-[#888EFF] font-bold pb-10">Verify your device</div>
 											<div className="text-[#888EFF] font-light pb-1">Enter your code</div>
-											<form className="flex  justify-center items-center rounded-xl h-[30px] w-[160px]">
+											<form className="flex  justify-center items-center rounded-xl h-[30px] w-[160px]"
+											onSubmit={(e) => {
+												e.preventDefault();
+											}}
+
+											>
 												<input className="flex rounded-xl text-[#888EFF] w-full h-full border bg-gray-100 border-[3px]  pr-3 pl-3 focus:border-[#6C5DD3] focus:outline-none text-center"
 												value={code.code}
 												onChange={(e) => {
@@ -197,7 +195,7 @@ export function MbTwoFA ( {hide}: Props) {
 												error ? 
 												<div className="pt-1">
 													<div className="border bg-[#E9DCE5] rounded-lg w-[170px] h-[25px]  flex gap-1 items-center justify-center">
-														<div className="text-xs font-semibold text-[#6C5DD3]">Invitation Code</div>
+														<div className="text-xs font-semibold text-[#6C5DD3]">Invalid code</div>
 														<div>
 															<div  style={{ backgroundImage: `url(${rec})`}} className="w-[14px] h-[14px] bg-center bg-no-repeat bg-cover">
 																<div className="text-white flex items-center justify-center text-xs font-semibold">
@@ -228,14 +226,14 @@ export function MbTwoFA ( {hide}: Props) {
 											<div className="pt-5">
 											
 											{
-												Data?.userData?.user_data?.is_two_factor_auth_enabled ?
+												Mydata?.data?.user_data?.is_two_factor_auth_enabled ?
 													<button className={`flex justify-center items-center border rounded-xl bg-gray-100 border-gray-100 h-[45px] w-[130px]`} onClick={handleOff}>
 														<div className="text-[#11142D]  font-semibold lg:text-sm">Disable 2FA</div>
 													</button>
 												: null
 											}
 											{
-												Data?.userData?.user_data?.is_two_factor_auth_enabled ? null :
+												Mydata?.data?.user_data?.is_two_factor_auth_enabled ? null :
 													<button className="flex justify-center items-center border rounded-xl bg-[#6C5DD3] border-[#6C5DD3] h-[45px] w-[130px]" onClick={handleOn}>
 															<div className="text-white font-semibold lg:text-sm">Enable 2FA</div>
 													</button>

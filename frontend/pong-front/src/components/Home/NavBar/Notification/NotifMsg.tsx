@@ -8,21 +8,44 @@ interface Props {
     name: string,
     requestType: string,
 	id : number,
+	show: () => void;
 }
 
-export function NotifMsg ( {profile, name, requestType , id}: Props ) {
+export function NotifMsg ( {profile, name, requestType , id, show}: Props ) {
 
 	const [hide, sethide] = useState(true);
 	const navigate = useNavigate();
 	// const data = useContext(MyContext);
 	const Profile = useProfilecontext();
 	const handleAccept = async () => {
-		console.log(name);
 		if (requestType !== 'game')
 		{
 			try {
 			const response = await axios.post(`http://${import.meta.env.VITE_API_URL}/accept-friend/${name}`, null, {withCredentials: true})
 			.then((response) => {
+				Profile?.setData((prevUserData) => {
+					const filteredRequests = prevUserData.pending_requests.filter(
+					  (request) => request.username !== name
+					);
+				  
+					return {
+					  ...prevUserData,
+					  pending_requests: [...filteredRequests],
+					};
+
+				});
+				Profile?.setData((prevUserData) => {
+					const filteredRequests = prevUserData.friends.filter(
+					  (request) => request.username !== name
+					);
+				  
+					return {
+					  ...prevUserData,
+					  friends: [...filteredRequests],
+					};
+
+				});
+
 				Profile?.setData((prevUserData) => ({
 					...prevUserData,
 					// user_data: {
@@ -30,17 +53,17 @@ export function NotifMsg ( {profile, name, requestType , id}: Props ) {
 						friends: [...prevUserData.friends, response.data],
 						// },
 					}));
-					console.log('data lli wslat', response.data);
+					// console.log('data lli wslat', response.data);
 					sethide(false);
+					show();
 			  })
 			}	
 			catch (error) {
-			console.log(error);
 			}
 		}
 		else
 		{
-			console.log('friend id in front', id);
+
 			sethide(false)
 			Profile?.setData((prevUserData) => {
 				const filteredRequests = prevUserData.pending_requests.filter(
@@ -57,17 +80,26 @@ export function NotifMsg ( {profile, name, requestType , id}: Props ) {
 	}
 
 	const handleRefuse = async () => {
-		console.log(name);
 		try {
 			const response = await axios.delete(`http://${import.meta.env.VITE_API_URL}/delete-request/${name}`, {withCredentials: true})
+			Profile?.setData((prevUserData) => {
+				const filteredRequests = prevUserData.pending_requests.filter(
+				  (request) => request.username !== name 
+				);
+			  
+				return {
+				  ...prevUserData,
+				  pending_requests: [...filteredRequests],
+				};
+			  });
 			sethide(false);
+			show();
 		}	
 		catch (error) {
-			console.log(error);
+
 		}
 	}
 
-		console.log('------------------------request type = ', requestType);
     return (
         <>
 		{

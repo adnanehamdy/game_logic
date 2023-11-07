@@ -13,11 +13,39 @@ import { useEffect } from "react";
 import rec from "/src/assets/rectangle.svg"
 import { useNavigate } from "react-router-dom";
 import { MyContext, UserContext } from "../../pages/Profile";
+import { useProfilecontext } from "../../ProfileContext";
 
 
 interface Props {
 	hide: () => void;
 }
+
+interface MyUserData {
+	user_data: {
+		id: 0,
+		username: '',
+		avatar: ''
+		me: false,
+		is_two_factor_auth_enabled: false,
+		state: ''
+	  },
+	  friends: friendsList[],
+	  blocks: [],
+	  match_history: [],
+	pending_requests: [],
+	  achievements: [],
+	  wins: 0,
+	  loses: 0,
+	  draws: 0,
+}
+
+  
+  interface friendsList{
+    id:  '',
+    username: '',
+    avatar:    '',
+    state:    '',
+  }
 
 export function TwoFa ( {hide}:Props ) {
     const [remove, SetRemove] = React.useState(false);
@@ -30,34 +58,51 @@ export function TwoFa ( {hide}:Props ) {
 	});
 	const [error, Seterror] = useState(false);
 	const [sent, Setsent] = useState(false);
-	const Data = useContext(MyContext);
- 
+	const Mydata = useProfilecontext();
+	// const [profileupdate, setUpdate] = useState<any>(null)
+	const navigate = useNavigate();
+	// const Mydata = useProfilecontext()
 
 
 
 	const handle2faOn = async () => {
+		console.log('start')
 		try {
+			console.log('handle2faON');
 			const response = await axios.post(`http://${import.meta.env.VITE_API_URL}/2fa/turn-on`, code, { withCredentials: true })
-			.then (function (response) {
+				console.log('response')
 				Setsent(true);
-			});
-		} catch (error) {
-			Seterror(true);
-			Setsent(false);
-			console.error('two-fa on:', error);
+				console.log('prev on', Mydata?.data?.user_data.is_two_factor_auth_enabled);
+				Mydata?.setData((prevUserData) => ({
+					...prevUserData,
+					user_data: {
+					  ...prevUserData.user_data,
+					  is_two_factor_auth_enabled: true as any,
+					},
+				  }));
+			} catch (error) {
+				console.log('error')
+				Seterror(true);
+				Setsent(false);
 			}
+			console.log('handle on end')
 		};
 
 		const handle2faOff = async () => {
 			try {
 				const response = await axios.post(`http://${import.meta.env.VITE_API_URL}/2fa/turn-off`, code, { withCredentials: true })
-				.then (function (response) {
 					Setsent(true);
-				});
-			} catch (error) {
-				Seterror(true);
-				Setsent(false);
-				console.error('two-fa Off:', error);
+					console.log('prev Off', Mydata?.data?.user_data.is_two_factor_auth_enabled);
+					Mydata?.setData((prevUserData) => ({
+						...prevUserData,
+						user_data: {
+						  ...prevUserData.user_data,
+						  is_two_factor_auth_enabled: false as any,
+						},
+					  }));
+				} catch (error) {
+					Seterror(true);
+					Setsent(false);
 				}
 			};
 
@@ -73,49 +118,15 @@ export function TwoFa ( {hide}:Props ) {
 			const base64 = btoa(new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), ''));
 			setData(`data:image/png;base64,${base64}`);
 		} catch (error) {
-			console.error('Error fetching data:', error);
 		}
 		};
 
 	
-	const handleqr = () => {
+	const handleqr = () => { 
 		setGenerate(!generate);
 		fetchData();
 	}
-	
-	const handleOn = () => {
-		Data?.setMyUserData((prevUserData) => ({
-		  ...prevUserData,
-		  user_data: {
-			...prevUserData.user_data,
-			is_two_factor_auth_enabled: true as any,
-		  },
-		}));
-	  
-		handle2faOn();
-	  };
-
-	const handleOff = () => {
-		Data?.setMyUserData((prevUserData) => ({
-			...prevUserData,
-			user_data: {
-			  ...prevUserData.user_data,
-			  is_two_factor_auth_enabled: false as any,
-			},
-		  }));
-
-		handle2faOff();
-	}
-
-	  useEffect(() => {
-		  try {
-			const response = axios.get(`http://${import.meta.env.VITE_API_URL}/profile/me`, { withCredentials: true })
-			.then (() => {
-			})
-		  } catch (error) {
-			console.error("Error fetching user data:");
-		  }
-	  }, []);
+	console.log('state', Mydata?.data.user_data.is_two_factor_auth_enabled)
 
 	return (
 		<>
@@ -187,7 +198,11 @@ export function TwoFa ( {hide}:Props ) {
 										<div id="last" className="flex flex-col items-center border border-[3px] border-[#BACCFD] rounded-custom w-[240px] h-[257px] pt-5">
 											<div className="text-[#888EFF] font-bold pb-10">Verify your device</div>
 											<div className="text-[#888EFF] font-light pb-1">Enter your code</div>
-											<form className="flex  justify-center items-center rounded-xl h-[30px] w-[160px]">
+											<form className="flex  justify-center items-center rounded-xl h-[30px] w-[160px]"
+											onSubmit={(e) => {
+												e.preventDefault();
+											}}
+											>
 												<input className="flex rounded-xl text-[#888EFF] w-full h-full border bg-gray-100 border-[3px]  pr-3 pl-3 focus:border-[#6C5DD3] focus:outline-none text-center"
 												value={code.code}
 												onChange={(e) => {
@@ -199,7 +214,7 @@ export function TwoFa ( {hide}:Props ) {
 												error ? 
 												<div className="pt-1">
 													<div className="border bg-[#E9DCE5] rounded-lg w-[170px] h-[25px]  flex gap-1 items-center justify-center">
-														<div className="text-xs font-semibold text-[#6C5DD3]">Invitation Code</div>
+														<div className="text-xs font-semibold text-[#6C5DD3]">Invalid Code</div>
 														<div>
 															<div  style={{ backgroundImage: `url(${rec})`}} className="w-[14px] h-[14px] bg-center bg-no-repeat bg-cover">
 																<div className="text-white flex items-center justify-center text-xs font-semibold">
@@ -230,18 +245,17 @@ export function TwoFa ( {hide}:Props ) {
 											<div className="pt-5">
 											
 											{
-												Data?.MyuserData?.user_data?.is_two_factor_auth_enabled ?
-													<button className={`flex justify-center items-center border rounded-xl bg-gray-100 border-gray-100 h-[45px] w-[130px]`} onClick={handleOff}>
+												Mydata?.data?.user_data?.is_two_factor_auth_enabled  && Mydata?.data?.user_data?.is_two_factor_auth_enabled === true &&
+													<button className={`flex justify-center items-center border rounded-xl bg-gray-100 border-gray-100 h-[45px] w-[130px]`} onClick={handle2faOff}>
 														<div className="text-[#11142D]  font-semibold lg:text-sm">Disable 2FA</div>
 													</button>
-												: null
 											}
-											{
-												Data?.MyuserData.user_data.is_two_factor_auth_enabled ? null :
-													<button className="flex justify-center items-center border rounded-xl bg-[#6C5DD3] border-[#6C5DD3] h-[45px] w-[130px]" onClick={handleOn}>
-															<div className="text-white font-semibold lg:text-sm">Enable 2FA</div>
-													</button>
-
+											{	
+												Mydata?.data?.user_data?.is_two_factor_auth_enabled === false &&  
+												<button className="flex justify-center items-center border rounded-xl bg-[#6C5DD3] border-[#6C5DD3] h-[45px] w-[130px]" onClick={handle2faOn}>
+													<div className="text-white font-semibold lg:text-sm">Enable 2FA</div>
+												</button>
+												
 											}
 											</div>
 										</div>

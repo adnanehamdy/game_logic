@@ -9,7 +9,6 @@ import { MbGameSettings } from "./MbGameSetting";
 import { json, unstable_Blocker, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 
-// import { MyContext } from "../../pages/Profile";
 import { useProfilecontext } from "../../ProfileContext";
 
 
@@ -18,30 +17,16 @@ interface Props {
 }
 
 export function DkSettings ( {hide}: Props ) {
-
-	// const data = useContext(MyContext);
-	
-	//   useEffect(() => {
-		
-	// 	  try {
-	// 		const response =  axios.get(`http://${import.meta.env.VITE_API_URL}/profile/me`, { withCredentials: true }).then ( function(response) {
-	// 			console.log(response.data);
-	// 		} )
-	// 	  } catch (error) {
-	// 		console.error("Error fetching user data:");
-	// 	  }
-
-
-	// }, []);
 	
     const [remove, SetRemove] = React.useState(false);
 	const [twoFA, setTwoFa] = useState(false);
     const [gameSetting, setgameSetting] = React.useState(false);
+	let defualt : string | undefined;
 	const [formData, setFormData] = useState<{username: string}>({
 		username: '',
 	});
-	const profile = useProfilecontext()
-	let defualt : string | undefined = profile.data.user_data?.avatar;
+	const profile = useProfilecontext();
+	defualt = profile?.data?.user_data?.avatar;
 	const [BASE_URL, setBase] = useState(defualt);
 
 
@@ -55,38 +40,31 @@ export function DkSettings ( {hide}: Props ) {
 
 			axios.post(`http://${import.meta.env.VITE_API_URL}/upload-avatar`, formData,  {
 				withCredentials: true,
-				headers: {
+			headers: {
 					"Content-Type": "multipart/form-data",
 				} 
 			}
 			)
 			.then((response) => {
-				setBase(`http://${import.meta.env.VITE_API_URL}/avatars/${response.data}`);
 				profile?.setData((prevUserData) => ({
 					...prevUserData,
 					user_data: {
-					  ...prevUserData.user_data,
-					  avatar: response.data,
+						...prevUserData.user_data,
+						avatar: response.data,
 					},
-				  }));
-
-
-
-
+				}));
+				setBase(`${response.data}`);
 			  })
-			//   profile.data.user_data.avatar = BASE_URL; 
 			}
 			catch(error) {
-				console.log("Post profile faild", error);
 			}
 		}
 
-
 	const handleName = async () => {
 		try {
-			console.log(formData.username);
+			(formData.username);
 			const response = await axios.post(`http://${import.meta.env.VITE_API_URL}/set-username`, formData, {withCredentials: true}).then (function (response) {
-				console.log(response.data);
+				(response.data);
 				profile?.setData((prevUserData) => ({
 					...prevUserData,
 					user_data: {
@@ -97,10 +75,12 @@ export function DkSettings ( {hide}: Props ) {
 			});
 		}
 		catch(error) {
-			console.log("Post profile faild", error);
 		}
 	}
 
+	useEffect (() => {
+
+	}, [profile?.data])
 
 	return (
 		<>
@@ -156,7 +136,11 @@ export function DkSettings ( {hide}: Props ) {
 						<div className="flex flex-col gap-[8px] justify-center pt-10 pl-5">
 						<div className="text-[#808191]">Update Your Name</div>
 						<div className="flex flex-col gap-9">
-						<form className="flex  justify-center items-center rounded-xl h-[70px] w-[200px]">
+						<form className="flex  justify-center items-center rounded-xl h-[70px] w-[200px]"
+						onSubmit={(e) => {
+							e.preventDefault();
+						}}
+						>
 							<input className="rounded-xl w-full h-full border bg-gray-100 border-[3px]  pr-3 pl-3 focus:border-[#6C5DD3] focus:outline-none  text-[#888EFF] text-center" value={formData.username} maxLength={8}
 								onChange={(e) => {
 									setFormData({ ...formData, username: e.target.value });

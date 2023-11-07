@@ -1,31 +1,38 @@
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useProfilecontext } from "../ProfileContext";
 
-export function TwofaAuth () {
+interface Props {
+	setLogin: () => void
+} 
+
+
+
+export function TwofaAuth ( {setLogin}: Props ) {
 	const [code, setCode] = React.useState(
 		{
 			code: ''
 		}
 	);
 	const navigate = useNavigate();
-
-
+  
 	const verifyYourCode = async () => {
 		try {
-			console.log(code.code);
+			(code.code);
 			const responce = await axios.post(`http://${import.meta.env.VITE_API_URL}/2fa/authenticate`, code, {
 				withCredentials: true,
 				headers: {
 					'Content-Type': 'application/json',
 				  },
-			});
-			if (responce) {
-				navigate("/profile/me");
-			}
+			}).then( ((response) => {
+				setLogin();
+				navigate(`/profile/${response.data}`);
+			})
+			)
 		}
 		catch (error) {
-			console.log(error);
+			(error);
 		}
 	}
 
@@ -35,7 +42,11 @@ export function TwofaAuth () {
 			<div className="flex flex-col items-center pt-5 border border-[3px] border-[#BACCFD] rounded-custom w-[240px] h-[257px] pt-5">
 				<div className="text-[#888EFF] font-bold pb-16">Verify your device</div>
 				<div className="text-[#888EFF] font-light pb-1">Enter your code</div>
-				<form className="flex  justify-center items-center rounded-xl h-[30px] w-[160px]">
+				<form className="flex  justify-center items-center rounded-xl h-[30px] w-[160px]"
+				onSubmit={(e) => {
+					e.preventDefault();
+				}}
+				>
 					<input className="flex rounded-xl text-[#888EFF] w-full h-full border bg-gray-100 border-[3px]  pr-3 pl-3 focus:border-[#6C5DD3] focus:outline-none text-center"
 					value={code.code}
 					onChange={(e) => {

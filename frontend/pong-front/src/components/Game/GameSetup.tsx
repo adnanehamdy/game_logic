@@ -58,7 +58,6 @@ export const GameSetup  = ( ) =>
     navigate('/error');
     return null;
   }
-    console.log('userID = ', state);
         customParam =
         {
             gameDuration : state.gameDuration,
@@ -69,7 +68,7 @@ export const GameSetup  = ( ) =>
   return (
     <>
     <SocketProvider customParam={customParam}>
-      <Game />
+      <Game user_id={customParam.user_id}/>
     <GameRoute/>
     </SocketProvider>
     </>

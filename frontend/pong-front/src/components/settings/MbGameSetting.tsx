@@ -130,12 +130,10 @@ export function MbGameSettings ( {hide}:Props ) {
 			try {
 				const response = await axios.get(`http://${import.meta.env.VITE_API_URL}/profile/me`, { withCredentials: true });
 				setUserData(response.data);
-				console.log("h2");
+				("h2");
 
 				
 			} catch (error) {
-				console.error("Error fetching user data:");
-				// navigate("/error");
 			}
 		};
 		
@@ -210,7 +208,6 @@ export function MbGameSettings ( {hide}:Props ) {
 								<div className="flex flex-col items-center justify-center gap-[10px] px-5">
 								<div className="text-sm text-[#808191]">Blocked user</div>
 								<div className="flex overflow-y-auto gap-[10px] flex-wrap w-full h-[120px] px-3 py-3 border-[2px] border-[#6C5DD3] rounded-xl">
-									<div>
 									{userData.blocks.map((block, index: number) => (
 										<div key={index}>
 											<Deblock name={block.username}/>
@@ -218,11 +215,10 @@ export function MbGameSettings ( {hide}:Props ) {
 									))
 									}
 								</div>
-								</div>
 									<div></div>
-									<button className="flex justify-center items-center border rounded-xl bg-[#6C5DD3] border-[#6C5DD3] h-[45px] w-[100px]">
+									{/* <button className="flex justify-center items-center border rounded-xl bg-[#6C5DD3] border-[#6C5DD3] h-[45px] w-[100px]">
 										<div className="text-white font-semibold text-sm">Save</div>
-									</button>
+									</button> */}
 
 								</div>
 

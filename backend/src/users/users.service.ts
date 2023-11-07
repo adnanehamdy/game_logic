@@ -375,7 +375,6 @@ export class UsersService {
               type:       'friendship',
             });
           }
-
           return pending_requests;
       }
       catch(error){
@@ -419,12 +418,10 @@ export class UsersService {
           let loses = 0;
           let draws = 0;
           MatchHistory.map(item => {
-            if (item.player_one_score === item.player_two_score){
+            if (item.my_score === item.friend_score){
               draws++;
             }
-            else if  ((item.player_one_id === PersonalData.id && item.player_one_score > item.player_two_score)
-            || (item.player_two_id === PersonalData.id && item.player_one_score < item.player_two_score)){
-              
+            else if  (item.my_score > item.friend_score){              
               wins++;
             }
             else{
@@ -1236,7 +1233,7 @@ export class UsersService {
         return true;
     }
     catch(error){
-      console.log(error);
+    //   console.log(error);
       return false;
     }
   }
@@ -1296,6 +1293,47 @@ export class UsersService {
           acceptor_id: friendId,
         },
       });
+        //find the all rooms
+        const allRooms = await this.prisma.managements.findMany({
+          where: {
+              user_id: userId,
+          }
+        });
+        //filter  just direct rooms
+        let directRooms = [];
+        for (let i=0; i< allRooms.length; i++){
+          const room = await this.prisma.rooms.findUnique({
+            where: {
+              id: allRooms[i].room_id,
+            },
+          });
+          if (room.type === 'direct')
+            directRooms.push(room);
+        }
+        //get the direct room with the friend id you want to delete
+        for (let i=0; i < directRooms.length; i++){
+          //check if the friend is a member of the room
+          const isMember = await this.prisma.managements.findMany({
+            where: {
+              room_id: directRooms[i].id,
+              user_id: friendId,
+            }
+          });
+          //if you find the friend in the room delete it 
+          if (isMember[0]){
+            const isDeletedTwo = await this.prisma.managements.deleteMany({
+              where: {
+                room_id: isMember[0].room_id,
+              },
+            });
+            const isDeleted = await this.prisma.rooms.delete({
+              where: {
+                id: isMember[0].room_id,
+              },
+            });
+            break;
+          }
+        }
       return true;
     }
     catch(error){

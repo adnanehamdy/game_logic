@@ -36,6 +36,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     @WebSocketServer() server: Server = new Server();
     private clients: Map<string, number> = new Map();
+    private clientActiveRoom: Map<number,string> = new Map();
 
     @SubscribeMessage('chat')
     async handleChatEvent(@MessageBody() payload: ChatDto, @ConnectedSocket() client: Socket){
@@ -96,22 +97,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         if (hasAccess){
             //let the client join the room to recieve reel time updates
             console.log("joined room");
-            // await this.server.in(payload.socketId).socketsJoin(payload.roomId);
+            if (this.clientActiveRoom.has(this.clients.get(client.id))){
+                await client.leave(this.clientActiveRoom.get(this.clients.get(client.id)));
+                this.clientActiveRoom.delete(this.clients.get(client.id));
+            }
             await client.join(payload.roomId);
+            this.clientActiveRoom.set(this.clients.get(client.id), payload.roomId);
+            console.log("clientActiveRoom = ",this.clientActiveRoom);
         }
         else{
             console.log("not joined room client does not have access to the room");
-        }
-    }
-
-    @SubscribeMessage('leave-room')
-    async handleLeaveRoomEvent(@MessageBody() payload: joinRoomDto, @ConnectedSocket() client: Socket) {
-        try{
-            await client.leave(payload.roomId);
-        }
-        catch(error){
-            console.log(error);
-            throw new WsException('Error occured while leaving the room');
         }
     }
 
@@ -130,11 +125,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
                 // console.log("clients after connect = ",this.clients);  
                 //save the user state in the database
                 const test = await  this.usersService.findById(user.id);
-                // console.log('initial state-------------------------------------------------- = ', test)
+                console.log('initial state-------------------------------------------------- = ', test)
                 const values = [...this.clients.values()];
                 if (values.includes(user.id) ===false)
                 {
-                    // console.log('new user')
+                    console.log('new user')
                     const isSaved = await this.notifications.saveUserState(user.id, "online");
                     //broadcast the user state change to all connected the users
                      this.server.emit('State', {id: user.id, username: user.username, avatar: user.avatar, state: "online"});
@@ -194,7 +189,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
               friendSocketId =  key;
         }
         const senderObject = await this.usersService.findById(userId);
-        // console.log("senderObject = ",senderObject);
+        console.log("senderObject = ",senderObject);
         const sender = {id: userId, username: senderObject.username, avatar: senderObject.avatar, type: 'friendship'};
         if (friendSocketId){
             this.server.to(friendSocketId).emit('friendRequest', sender); //broadcast messages
@@ -210,8 +205,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
               friendSocketId =  key;
         }
         const senderObject = await this.usersService.findById(userId);
-        // console.log("senderObject = ",senderObject);
-        console.log('sender', userId)
+        console.log("senderObject = ",senderObject);
         const sender = {id: userId, username: senderObject.username, avatar: senderObject.avatar, type: 'game'};
         if (friendSocketId){
             this.server.to(friendSocketId).emit('gameRequest', sender); //broadcast messages
@@ -235,3 +229,4 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
 }
+

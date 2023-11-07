@@ -37,14 +37,10 @@ export function GameMode ( {hide}: Props ) {
 			setUserData(response.data);
 		})
 		} catch (error) {
-		console.error("Error fetching user data:");
 		}
 
 	}, []);
 
-		// const state = useDataContext();
-		// let isCurrent : string  = 'ingame';
-		// if 
 	return (
 		<>
 			{
@@ -64,7 +60,7 @@ export function GameMode ( {hide}: Props ) {
 							<div className="flex lg:flex-row overflow-x-auto pt-3">
 								<GameCard TableType="AI Table"  imgPath="/src/assets/Bot_Img.png" OpponentId={userData.user_data.id} user_id={userData.user_data.id} hide={hide}/>
 								<GameCard TableType="world Table" imgPath="/src/assets/3_win_game.png" OpponentId={userData.user_data.id} user_id={userData.user_data.id} hide={hide}/>
-								<GameCard TableType="friend Table" imgPath="/src/assets/7_win_game.png" OpponentId={-1} user_id={userData.user_data.id} hide={hide}/>
+								<GameCard TableType="friend Table" imgPath="/src/assets/7_win_game.png" OpponentId	={-1} user_id={userData.user_data.id} hide={hide}/>
 							</div>
 							</div>
 						</div>

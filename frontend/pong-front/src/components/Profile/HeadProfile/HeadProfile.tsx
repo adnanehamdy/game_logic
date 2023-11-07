@@ -26,46 +26,41 @@ import { Link, useNavigate } from "react-router-dom"
 import { Playing } from "../../Home/Friends/status/Playing"
 import { ChatSocketContext } from "../../Chat/contexts/chatContext"
 import { OffLine } from "../../Home/Friends/status/OffLine"
+import { useProfilecontext } from "../../../ProfileContext"
 
 export function HeadProfile({ state, profile, name, friendNum, me }: Props) {
 
-	const data = useContext(UserContext);
-	const Mydata = useContext(MyContext);
 	const [gameMode, setGameMode] = useState(false);
-	const [clicked, setClick] = useState(false);
-	// const state = useDataContext();
 	const chatContext = useContext(ChatSocketContext);
 	const [search, Setsearch] = useState(false);
 	const [Mystate, setState] = useState(state)
+
+	const data = useProfilecontext();
 	useEffect(() => {
 		chatContext?.on('State', (friendState: friendsList) => {
 		
 			if (friendState.username == name && friendState.state)
 			{
 				setState(friendState.state);
-				console.log('state changed')
 			}
-			console.log('new state in profile', friendState.state);
 			return (() => {
 				(chatContext?.off('State'))
 			})
 		}
 		)
 	}, [])
-	// } 
 	const handleMode = () => {
 		setGameMode(!gameMode);
 	}
 
 	const handleFriend = async () => {
 		try {
-			console.log(name);
+			(name);
 			const response = await axios.post(`http://${import.meta.env.VITE_API_URL}/add-friend/${name}`, null, { withCredentials: true })
 				.then(function (response) {
-					setClick(true);
+	
 				});
 		} catch (error) {
-			console.error('POST friend failed:', error);
 		}
 	};
 
@@ -75,45 +70,92 @@ export function HeadProfile({ state, profile, name, friendNum, me }: Props) {
 
 
 	const blockFriend = async () => {
+		let removedFriends : any;
 		try {
-			const response = await axios.post(`http://${import.meta.env.VITE_API_URL}/block-friend/${name}`, null, { withCredentials: true });
+			const response = await axios.post(`http://${import.meta.env.VITE_API_URL}/block-friend/${name}`, null, { withCredentials: true })
+			.then ((response) => {
+				data?.setData((prevUserData) => {
+					removedFriends = prevUserData.friends.filter(
+						(request) => request.username === name
+					  );
+					
+					const filteredRequests = prevUserData.friends.filter(
+					  (request) => request.username !== name
+					);
+				  
+					return {
+					  ...prevUserData,
+					  friends: [...filteredRequests],
+					};
+
+				});
+				data?.setData((prevUserData) => ({
+					...prevUserData,
+					// user_data: {
+						...prevUserData,
+						blocks: [...prevUserData.blocks, removedFriends[0]],
+						// },
+					}));
+				// data?.setData((prevUserData) => {
+				// 	const filteredRequests = prevUserData.blocks.filter(
+				// 	  (request) => request.username !== name
+				// 	);
+				  
+				// 	return {
+				// 	  ...prevUserData,
+				// 	  friends: [...filteredRequests],
+				// 	};
+
+				// });
+			})
 		}
 		catch (error) {
-			console.log(error);
+			(error);
 		}
 	}
 
 	const [isFriend, setFriend] = useState(false);
 
 	useEffect(() => {
-		Mydata?.MyuserData.friends.some(
-			(friend: { username: string }) => {
-				friend.username === name && setFriend(true);
-			}
+		data?.data?.friends?.some((friend: { username: string }) => {
+			friend.username === name && setFriend(true)
+		}
 		);
+	});
+
+	useEffect(() => {
+		data?.data?.user_data?.username === name && setFriend(false)
 	});
 
 	const handleUnFriend = async () => {
 		try {
-			console.log(name);
+			// (name);
 			const response = await axios.delete(`http://${import.meta.env.VITE_API_URL}/delete-friend/${name}`, { withCredentials: true })
-				.then(function (response) {
-					setClick(true);
-				});
+			.then(function (response) {
+				data?.setData((prevUserData) => {
+				const filteredfriends = prevUserData.friends.filter(
+				  (friend) => friend.username !== name 
+				);
+			  
+				return {
+				  ...prevUserData,
+				  friends: [...filteredfriends],
+				};
+			  });
+				setFriend(false);
+				
+			});
 		} catch (error) {
-			console.error('POST friend failed:', error);
 		}
 	};
 
 	const handleFriendreq = () => {
-		console.log(isFriend)
 		{
 			isFriend ? handleUnFriend() :
 				handleFriend()
 		}
 	}
-	console.log('head profile avatar = ', profile);
-	console.log('new state in profile', Mystate);
+
 	return (
 		<>
 			<div className="pt-32 pl-10 pr-10 lg:pl-36 lg:pr-10">
@@ -139,12 +181,6 @@ export function HeadProfile({ state, profile, name, friendNum, me }: Props) {
 							</div>
 						</div>
 						<div className="flex gap-7 items-center justify-around">
-							{
-								me ? null :
-									<button className="flex justify-center items-center border rounded-xl bg-[#6C5DD3] border-[#6C5DD3] h-[45px] w-[100px] pr-">
-										<div className="text-white font-semibold lg:text-sm">Message</div>
-									</button>
-							}
 							{
 								isFriend ?
 									<button className={`flex items-center justify-center border border-gray-100 bg-gray-100 w-[50px] h-[45px] shadow rounded-xl`} onClick={handleFriendreq}>
@@ -176,11 +212,15 @@ export function HeadProfile({ state, profile, name, friendNum, me }: Props) {
 							</button>
 							{
 								me ? null :
-									<a href="/profile/me">
-										<button className={`flex items-center justify-center border w-[50px] border-[#6C5DD3] bg-[#6C5DD3] h-[45px] shadow rounded-xl`} onClick={blockFriend}>
-											<img src={block} className="w-[24px] h-[24px]"></img>
-										</button>
-									</a>
+									<Link to="/profile/me">
+										{
+											data?.data?.data?.blocks.some((obj : any) => obj.username === name) === true ? null :
+											<button className={`flex items-center justify-center border w-[50px] border-[#6C5DD3] bg-[#6C5DD3] h-[45px] shadow rounded-xl`} onClick={blockFriend}>
+												<img src={block} className="w-[24px] h-[24px]"></img>
+											</button> 
+
+										}
+									</Link>
 							}
 						</div>
 					</div>

@@ -124,7 +124,9 @@ export class AppController {
       }
       const token = await this.authService.loginWith2fa(req.user, us.is_two_factor_auth_enabled);
       res.cookie('jwt', token, { httpOnly: true , sameSite: 'strict'});
-      // return us.username;
+      // return res.redirect(`http://${process.env.REACT_APP_HOST}/profile/me`);
+	  
+      return us.username;
 }
       
   @Post('/set-username')
@@ -177,7 +179,10 @@ async activateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
   if (!isActivated){
     throw new HttpException('Failed to activate 2fa', HttpStatus.BAD_REQUEST);
   }
+  console.log('return 2fa')
   return 'You successfully activated 2fa';
+	// return res.x (`http://localhost:5173/profile/${user.username}`)
+
 }
 
 @Post('2fa/turn-off')
@@ -630,22 +635,22 @@ async deactivateTwoFactorAuth(@Req() req: Request, @Body() body: TfaCodeDto) {
       return 'Request deleted seccussfully';
   }
 
-  @Post('invite-to-game/:username')
-  @UseGuards(Jwt2faAuthGuard)
-  async inviteToGame(@Req() req: Request, @Param('username', UsernameStringToDtoPipe) username: string){
-    const user = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
-    const friend = await this.usersService.findByUsername(username);
-    if (!friend)
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    if (user.username === friend.username)
-      throw new HttpException('You are trying to invite yourself', HttpStatus.BAD_REQUEST);
-    //check if they are friends
-    const areFriends = await this.usersService.checkIfFriends(user.id, friend.id);
-    if (!areFriends)
-      throw new HttpException('Failed to invite friend to game', HttpStatus.BAD_REQUEST);
-    this.notifications.sendGameRequestNotification(user.id, friend.id);
-      return 'Friend invited seccussfully';
-  }
+  // @Post('invite-to-game/:username')
+  // @UseGuards(Jwt2faAuthGuard)
+  // async inviteToGame(@Req() req: Request, @Param('username', UsernameStringToDtoPipe) username: string){
+  //   const user = await this.usersService.findOne(this.authService.extractIdFromPayload(req.user));
+  //   const friend = await this.usersService.findByUsername(username);
+  //   if (!friend)
+  //     throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+  //   if (user.username === friend.username)
+  //     throw new HttpException('You are trying to invite yourself', HttpStatus.BAD_REQUEST);
+  //   //check if they are friends
+  //   const areFriends = await this.usersService.checkIfFriends(user.id, friend.id);
+  //   if (!areFriends)
+  //     throw new HttpException('Failed to invite friend to game', HttpStatus.BAD_REQUEST);
+  //   this.notifications.sendGameRequestNotification(user.id, friend.id);
+  //     return 'Friend invited seccussfully';
+  // }
 
   @Get('is-loggedin')
   @UseGuards(Jwt2faAuthGuard)

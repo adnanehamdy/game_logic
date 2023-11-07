@@ -7,6 +7,11 @@ import { ChatProfileContext } from './components/Chat/contexts/chatProfileContex
 import { ChatSocketContext, ChatSocketProvider } from './components/Chat/contexts/chatContext.tsx';
 import { useProfilecontext } from './ProfileContext.tsx';
 import { useContext , useState} from 'react';
+import { TwofaAuth } from './pages/TwofaAuth.tsx';
+import { SignIn } from './pages/SignIn.tsx';
+import { SetUsername } from './pages/SetUsername.tsx';
+import axios from 'axios'
+import { ForOFor } from './pages/ForOFor.tsx';
 // import { ProfileProvider,useProfilecontext } from "./ProfileContext"
 import { StateProvider, useDataContext, } from "./components/Profile/States/stateContext"
 import { NavBar } from './components/Home/NavBar/NavBar.tsx';
@@ -32,28 +37,6 @@ interface friendsList{
 	setData: React.Dispatch<React.SetStateAction<any>>;
   }
 
-const Start = () =>
-{
-//   const profile = useProfilecontext()
-// 	const chatContext = useContext(ChatSocketContext);
-// 	let state : DataContextProps | undefined;
-// 		state = useDataContext();
-// 	    chatContext?.on('State', (friendState : friendsList)=>
-//       {
-//       console.log('on state -------', friendState);
-//       state?.setData((old) =>
-//       old.map((item : friendsList) => (item.id === friendState.id ? { ...item, ...friendState } : item))
-// 	  )
-//         return () =>{
-//           chatContext?.off('State');}
-//   }, [])
-//   console.log('user_data li f navbar', profile?.data?.user_data.avatar);
-
-
-  return (<>
-  {/* <App/> */}
-  </>)
-}
 
 const Loading = () =>
 {
@@ -69,28 +52,62 @@ const Loading = () =>
     return (
 		<>
 	<StateProvider>
-	<Start/>
 	<App/>
 </StateProvider>
 	</>)
 }
 const Root: React.FC = () => {
 
-		// console.log(islogin);
-    return (
-        <ChatSocketProvider>
-      <ProfileProvider>
+  const [islogin, setIslogin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  // const Profile_data = useProfilecontext();
+  
 
-          {/* <StateProvider> */}
+  React.useEffect(() => {
+    
+  const checkAuthentication = async () => {
+    try {
+    const response = await axios.get(`http://${import.meta.env.VITE_API_URL}/is-loggedin`, { withCredentials: true });
+    console.log('here')
+    setIslogin(response.data === true);
+    } catch (error) {	
+      (error);
+      setIslogin(false)
+      setIsLoading(false);
+    } finally {
+      console.log('soemthing')
+    setIsLoading(false);
+    }
+  }
+
+  checkAuthentication();
+}, []);
+
+    
+  if (isLoading) {
+  return <div>Loading....</div>;
+  }
+  return (
+  <>
+  {(islogin) ? (
+    <>
+      <ChatSocketProvider>
+      <ProfileProvider>
             <Loading/>
-          {/* </StateProvider> */}
       </ProfileProvider>
         </ChatSocketProvider>
-    );
+        </>
+    ) : (
+    		<BrowserRouter>
+				  <Routes>
+					<Route path="/2fa" element={<TwofaAuth setLogin={() => setIslogin(true)}/>} />
+					<Route path="/set_username" element={<SetUsername setLogin={() => setIslogin(true)}/>} />
+					<Route path="*" element={<SignIn />} />
+				  </Routes>
+				</BrowserRouter>)
   };
-  
-//   ReactDOM.render(<Root />, document.getElementById('root'));
-
+  </>)
+}
 
   ReactDOM.createRoot(document.getElementById('root')!).render(
 

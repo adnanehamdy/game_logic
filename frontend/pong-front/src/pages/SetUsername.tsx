@@ -5,15 +5,52 @@ import React, { useContext } from "react";
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useProfilecontext } from "../ProfileContext";
 // import { UserError } from "./Error/UserError";
 
 interface Props {
 	setLogin: () => void
 }
 
+// interface friendsList{
+//     id:  '',
+//     username: '',
+//     avatar:    '',
+//     state:    '',
+//   }
+  
+// interface MyUserData {
+// 	user_data: {
+// 		id: 0,
+// 		username: '',
+// 		avatar: ''
+// 		me: false,
+// 		is_two_factor_auth_enabled: false,
+// 		state: ''
+// 	  },
+// 	  friends: friendsList[],
+// 	  blocks: [],
+// 	  match_history: [],
+// 	pending_requests: [],
+// 	  achievements: [],
+// 	  wins: 0,
+// 	  loses: 0,
+// 	  draws: 0,
+// }
+
+
+// const fetchData = async () => {
+// 	try {
+// 		const response = await axios.get(`http://${import.meta.env.VITE_API_URL}/profile/me`, { withCredentials: true });
+  
+// 		let Mydata : MyUserData;
+// 		Mydata = response.data;
+// 		console.log(Mydata)
+// 		return (Mydata);
+// 	} catch (error) {
+// 		}
+// 	};
 export const SetUsername = ( {setLogin}: Props ) => {
-	
-	// const data = useContext
 
     const [formData, setFormData] = useState<{username: string}>({
         username: '',
@@ -25,11 +62,11 @@ export const SetUsername = ( {setLogin}: Props ) => {
           try {
          	const response = await axios.post(`http://${import.meta.env.VITE_API_URL}/set-username`, formData, { withCredentials: true })
 			.then ((response) => {
+
 				setLogin();
 				navigate("/profile/me");
 			} )
         } catch (error) {
-          console.error('POST request failed:', error);
 		  Seterror(true);
         }
       };
@@ -41,15 +78,23 @@ export const SetUsername = ( {setLogin}: Props ) => {
             <div className="border flex flex-col items-center justify-center bg-white w-[500px] h-[500px] shadow-xl rounded-custom">
                 <div className="flex items-center justify-center text-[#808191]">Enter Your Full Name</div>
                 <div className="flex flex-col items-center gap-5 pt-5">
-                <form className="flex justify-center items-center rounded-xl h-[70px] w-[300px]">
-                    <input className="rounded-xl w-full h-full border bg-gray-100 border-[3px]  pr-3 pl-3 focus:border-[#6C5DD3] focus:outline-none text-[#888EFF] text-center"
-					maxLength={8}
-                    value={formData.username}
-                    onChange={(e) => {
+                <form
+					className="flex justify-center items-center rounded-xl h-[70px] w-[300px]"
+					onSubmit={(e) => {
+						e.preventDefault();
+						handleFormSubmit();
+					}}
+					>
+					<input
+						className="rounded-xl w-full h-full border bg-gray-100 border-[3px] pr-3 pl-3 focus:border-[#6C5DD3] focus:outline-none text-[#888EFF] text-center"
+						maxLength={8}
+						value={formData.username}
+						onChange={(e) => {
+						e.preventDefault();
 						setFormData({ ...formData, username: e.target.value });
-					  }}
-                />
-                </form>
+						}}
+					/>
+					</form>
 				<button className="flex justify-center items-center border rounded-xl bg-[#6C5DD3] border-[#6C5DD3] h-[45px] w-[140px]" onClick={handleFormSubmit}>
 					<div className="text-white font-semibold lg:text-sm">Submit</div>
 				</button>

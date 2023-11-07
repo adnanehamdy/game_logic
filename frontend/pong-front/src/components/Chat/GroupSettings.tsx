@@ -3,14 +3,13 @@ import { AddMember } from "./AddMember";
 import { GroupRestriction } from "./GroupRestriction";
 import rmv from "/src/assets/remove.svg"
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { json, useParams } from "react-router-dom";
 import { Add } from "../Home/NavBar/Notification/add";
 import { UpdatePass } from "./UpdatePass";
 
 
 interface Props {
 	hide: () => void,
-	role: boolean,
 }
 
 const initialUsers = {
@@ -28,13 +27,30 @@ const allUsers = {
 	avatar: '',
 }
 
-export function GroupSettings( {hide, role}: Props ) {
+export function GroupSettings( {hide}: Props ) {
 
 	const [member, setMember] = useState<typeof initialUsers[]>([]);
 	const { id } = useParams();
 	const [updatePass, setUpdatepass] = useState(false);
+	const [role, Setrole] = useState(false);
 
-	console.log("inside role = " + role);
+	useEffect(() => {
+		const fetchData = async () => {
+		  try {
+			let response = await axios.get(
+			  `http://${import.meta.env.VITE_API_URL}/get-my-role/${id}`,
+			  { withCredentials: true }
+			)
+			.then ((response) => {
+				if (response.data === "owner")
+					Setrole(true);
+			})
+		} catch (error) {
+		}
+	};
+	
+	fetchData();
+	}, []);
 	useEffect(() => {
 		try {
 			const response =  axios.get(`http://localhost:3000/get-room-members/${id}`,
@@ -44,7 +60,6 @@ export function GroupSettings( {hide, role}: Props ) {
 			})
 			
 		} catch (error) {
-			console.error("Error fetching data:", error);
 		}
 	}, []);
 
@@ -58,7 +73,6 @@ export function GroupSettings( {hide, role}: Props ) {
 			})
 			
 		} catch (error) {
-			console.error("Error fetching data:", error);
 		}
 	}, []);
 	const [Isprivate, setIsPrivate] = useState(false);
@@ -79,7 +93,6 @@ export function GroupSettings( {hide, role}: Props ) {
 			})
 			
 		} catch (error) {
-			console.error("Error fetching data:", error);
 		}
 	}, []);
 
@@ -88,20 +101,20 @@ export function GroupSettings( {hide, role}: Props ) {
             name: name,
             type: type,
         };
-		console.log(jsonData);
+		(jsonData);
 		try {
-			const response = await axios.post(`http://${import.meta.env.VITE_API_URL}/remove-room-password`, jsonData, { withCredentials: true })
+			const response = await axios.delete(`http://${import.meta.env.VITE_API_URL}/remove-room-password`, { 
+				withCredentials: true,
+				data: jsonData,
+			})
 			.then (function (response) {
-				console.log("Password removed and the room become public")
 				
 			});
 		}
 		catch (error) {
-			console.log(error);
+			(error);
 		}
 	}
-
-	console.log("role " + role);
 	const [remove, setRemove] = React.useState(false);
 	return (
 	  <>

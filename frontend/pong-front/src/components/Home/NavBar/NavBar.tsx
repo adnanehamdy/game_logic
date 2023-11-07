@@ -14,7 +14,7 @@
   interface Props {
     avatar: string,
     username: string,
-    // update: () => void;
+
   }
 
   interface friendsList{
@@ -27,16 +27,13 @@
   export function NavBar( ) {
     const [showNotif, setShowNotif] = React.useState(false);
     const [showBurger, setShowBurger] = React.useState(false);
-    // const profile = useProfilecontext()
-    // const chatContext = useContext(ChatSocketContext);
-    // const state = useDataContext();
+;
     const profile = useProfilecontext();
+
+
 
         useEffect(()=>
         {
-
-            console.log('---------------------------------------------- avatar changed ')
-            console.log(profile?.user_data?.avatar);
         }, [profile?.user_data?.avatar])
     return (
       <>
@@ -51,10 +48,9 @@
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <div className="pr-20">
+                  <div className="pr-20 pb-3">
                     <Notification
                       clicked={() => setShowNotif(!showNotif)}
-                      msgnum={profile?.pending_requests?.length}
                     />
                   </div>
                   <div className="lg:pr-16">

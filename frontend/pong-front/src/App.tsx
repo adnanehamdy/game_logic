@@ -31,81 +31,28 @@ interface friendsList{
 	  data: friendsList[];
 	  setData: React.Dispatch<React.SetStateAction<any>>;
 	}
-	// interface StateDto {
-	// 	state: string;
-	// }
-	// @IsIn(['online', 'offline', 'ingame'])
+
 	const App: React.FC = ()=> {
-		const [islogin, setIslogin] = useState(false);
-		const [isLoading, setIsLoading] = useState(true);
-		let state : DataContextProps | undefined;
-		// const MemoizedGameRoute = React.memo(GameRoute);
-
-// ...
-
-		state = useDataContext();
-		// const chatContext = useContext(ChatSocketContext);
-		const Profile_data = useProfilecontext();
-		
-		// state?.setData('new data');
-		useEffect(() => {
-			// chatContext?.emit('join-room', {})
-			
-
-		const checkAuthentication = async () => {
-			try {
-			const response = await axios.get(`http://${import.meta.env.VITE_API_URL}/is-loggedin`, { withCredentials: true });
-			setIslogin(response.data === true);
-			} catch (error) {
-				
-				console.log(error);
-				setIslogin(false)
-				setIsLoading(false);
-			} finally {
-			setIsLoading(false);
-			}
-		}
-	
-		checkAuthentication();
-}, []);
-	
-			
-		if (isLoading) {
-		return <div>Loading....</div>;
-		}
-		// console.log(islogin);
-		
 
 		return (
 			<>
-			  {(islogin && Profile_data) ? (
 				<>
-				{/* <BrowserRouter> */}
-				{/* </BrowserRouter> */}
 
 				<BrowserRouter>
 				  <NavBar/>
+				  <ProfileProvider>
 					<Routes>
 					  <Route path={`/Profile/:username`} element={<CheckProfile />} />
-				  <Route path="/game" element={<GameSetup />} />
-					  <Route path="/2fa" element={<TwofaAuth />} />
+				  		<Route path="/game" element={<GameSetup />} />
 					  <Route path="/Chat" element={<Chat />} />
 					  <Route path="/Chat/:id" element={<Chat />} />
 					  <Route path="/error" element={<ForOFor />} />
 					  <Route path="/" element={<Profile />} />
 					  <Route path="*" element={<ForOFor />} />
 					</Routes>
+					  </ProfileProvider>
 				  </BrowserRouter>
 				  </>
-			  ) : (
-				// Your not-logged-in routes go here
-				<BrowserRouter>
-				  <Routes>
-					<Route path="/set_username" element={<SetUsername setLogin={() => setIslogin(true)}/>} />
-					<Route path="*" element={<SignIn />} />
-				  </Routes>
-				</BrowserRouter>
-			  )}
 			</>
 		  );
 		  
